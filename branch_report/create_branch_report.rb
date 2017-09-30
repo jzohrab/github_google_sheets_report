@@ -7,7 +7,7 @@ require 'yaml'
 # Helpers
 
 def get_branch_data(master, branch_name)
-  log = `git log --date=format:%Y-%m-%d --format="%cd %aE" #{master}..#{branch_name}`
+  log = `git log --date=short --format="%cd %aE" #{master}..#{branch_name}`
   commits_ahead = log.split("\n").map do |c|
     c.split(' ')
   end
