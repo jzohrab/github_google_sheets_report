@@ -1,7 +1,7 @@
 # Copy this file to your own config.yml and edit as needed.
 
 # Dir to check, relative to this program:
-:source_dir: ../klick-genome
+:source_dir: ../../klick-genome
 
 # Repo info:
 :origin_name: origin
