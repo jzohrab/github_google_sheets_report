@@ -1,3 +1,5 @@
 # ignore user's own config files
 *.yml
-branch_report.txt
+
+# ignore generated reports
+*.txt

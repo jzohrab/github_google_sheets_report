@@ -1,0 +1,16 @@
+# Copy this file to your own config.yml and edit as needed.
+
+# Dir to check, relative to this program:
+:source_dir: ../../klick-genome
+
+# Repo info:
+:origin_name: origin
+
+# Use raw_data file if it exists?
+:use_existing_raw_data: true
+
+# If not using the existing raw_data file, fetch/prune before
+# analyzing?  (Set to false for a faster run)
+:do_fetch: false
+:do_prune: false
+
