@@ -1,4 +1,6 @@
-fs=`git branch | grep feature`
+#!/bin/bash
+
+fs="develop `git branch | grep feature`"
 for b in $fs; do
     echo ==================
     echo $b
@@ -10,7 +12,7 @@ for b in $fs; do
 	echo Try merging $other
 	git reset --hard
 	git clean -f
-	git merge --no-commit $other
+	git merge --no-ff --no-commit $other
 	git diff --name-only --diff-filter=U
     done
 done
