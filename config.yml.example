@@ -1,0 +1,18 @@
+# Copy this file to your own config.yml and edit as needed.
+
+# Dir to check, relative to this program:
+:source_dir: ../klick-genome
+
+# Repo info:
+:origin_name: origin
+:master_branch: origin/master
+
+# Fetch/prune before analyzing?
+# (Set to false for a faster run)
+:do_fetch: false
+:do_prune: false
+
+## Use this to speed up run during development:
+:sample_branches:
+  - origin/1001520
+  - origin/1005715
