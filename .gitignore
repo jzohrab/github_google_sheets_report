@@ -3,3 +3,6 @@
 
 # ignore generated reports
 *.txt
+
+# python
+venv
