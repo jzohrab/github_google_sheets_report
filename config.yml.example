@@ -13,6 +13,6 @@
 :do_prune: false
 
 ## Use this to speed up run during development:
-:sample_branches:
+:branches:
   - origin/1001520
   - origin/1005715
