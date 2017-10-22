@@ -28,3 +28,12 @@ deactivate
 
 rm -rf venv
 ```
+
+
+Can do the following:
+
+```
+$ start_python_venv.sh        # create the venv
+$ source venv/bin/activate    # activate
+```
+
