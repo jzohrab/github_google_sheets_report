@@ -26,9 +26,14 @@ if (config[':do_prune']):
     print("Pruning ...")
     subprocess.run(cmd, shell=True)
 
-cmd = "git branch -r"
-result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
-lines = result.stdout.decode().split("\n")
-lines = [line.strip() for line in lines if "HEAD" not in line]
-for line in iter(lines):
-    print(line)
+branches = []
+if (':branches' in config):
+    branches = config[':branches']
+else:
+    cmd = "git branch -r"
+    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+    rawdata = result.stdout.decode().split("\n")
+    branches = [b.strip() for b in rawdata
+                if "HEAD" not in b and b != '']
+
+print(branches)
