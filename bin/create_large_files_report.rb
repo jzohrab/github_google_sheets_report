@@ -7,8 +7,15 @@ require 'yaml'
 # Helpers
 
 def write_rev_list_data(path)
-  cmd = "git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '/^blob/ {print substr($0,6)}'"
-  File.open(path, 'w') { |f| f.write(`#{cmd}`) }
+  tmpfile = File.expand_path("#{path}.tmp")
+  cmd = "git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' > #{tmpfile}"
+
+  # | awk '/^blob/ {print substr($0,6)}'
+  puts cmd
+  `#{cmd}`
+
+  # File.open(path, 'w') { |f| f.write(`#{cmd}`) }
+  raise 'exit!'
 end
 
 def split_line(line)
