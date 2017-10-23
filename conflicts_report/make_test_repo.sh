@@ -1,7 +1,14 @@
 #!/bin/bash
 
 # Creates a master git repo with some branches
-# with conflicts.
+# with conflicts, and clones it to ${master}_clone.
+#
+# Sample call:
+#   $ make_test_repo.sh /c/temp/zz_test_repo
+#
+#
+# Branches created:
+# ----------------
 #
 # ---o----o----o develop
 #     \
@@ -15,18 +22,12 @@
 #      |
 #      +----o    feature/D - conflicts with develop
 
-if [ "$#" -gt 2 ]; then
-    echo "Usage: $0 <path_to_repo_to_create> [force]"
+if [ "$#" -gt 1 ]; then
+    echo "Usage: $0 <path_to_repo_to_create>"
     exit 1
 fi
 
 REPODIR=$1
-FORCE=$2
-
-if [ "$FORCE" != "" ]; then
-    echo "Removing dir"
-    rm -rf $REPODIR
-fi
 
 if [ -d $REPODIR ]; then
     echo "Error: directory already exists, exiting."
@@ -35,6 +36,9 @@ fi
 
 mkdir -p $REPODIR
 pushd $REPODIR
+
+ACTUALPATH=`pwd`
+CLONE=`pwd`_clone
 
 git init
 echo 'hello' > README.md
@@ -62,5 +66,7 @@ echo 'A3' >> A.txt; git add .; git commit -m "Achild"
 git checkout develop
 
 popd
+
+git clone file://${ACTUALPATH} ${CLONE}
 
 

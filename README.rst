@@ -22,6 +22,12 @@ sudo pip install --upgrade virtualenv
 # eg. https://github.com/jeff-zohrab/devops-box.git
 ```
 
+## Create sample repo
+
+```
+./conflicts_report/make_test_repo.sh /tmp/zz_test_repo
+```
+
 ## Running
 
 ```
