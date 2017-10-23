@@ -11,19 +11,26 @@ Contents (README files are in each subdirectory):
 
 # Python
 
+## Install prereqs
+
 ```
-brew install python3
+brew install python3  # mac
 sudo pip install --upgrade pip
 sudo pip install --upgrade virtualenv
 
-# Make venv
-make PYTHON=/usr/local/bin/python3 venv
+# Optionally, use a pre-provisioned Vagrant box,
+# eg. https://github.com/jeff-zohrab/devops-box.git
+```
 
+## Running
+
+```
+# Make venv
+make PYTHON=`which python3` venv
 
 source venv/bin/activate   # start venv
 
 make init                  # load reqs
-
 
 python --version  # verify python version
 # should return python 3.x.x
