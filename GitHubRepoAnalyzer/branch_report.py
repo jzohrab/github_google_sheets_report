@@ -30,10 +30,34 @@ branches = []
 if (':branches' in config):
     branches = config[':branches']
 else:
-    cmd = "git branch -r"
+    cmd = 'git branch -r'
     result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
     rawdata = result.stdout.decode().split("\n")
     branches = [b.strip() for b in rawdata
                 if "HEAD" not in b and b != '']
 
 print(branches)
+
+def get_branch_data(master, branch_name):
+    cmd = "git log --date=short --format=\"%cd %aE\" {m}..{b}"
+    cmd = cmd.format(m=master, b=branch_name)
+    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+    rawdata = result.stdout.decode().split("\n")
+    print(rawdata)
+
+  #   commits_ahead = log.split("\n").map do |c|
+  #   c.split(' ')
+  # end
+  # num_commits_ahead = commits_ahead.size
+  # latest_commit = commits_ahead.map { |d, c| d }.max
+  # authors = commits_ahead.map { |d, c| c }.sort.uniq
+  # authors = authors.join(', ')
+  
+  # # Expensive ... add if desired.
+  # # approx_diff_linecount = `git diff #{master}...#{branch_name} | grep ^[+-] | wc -l`.strip
+
+  # return [branch_name, num_commits_ahead, latest_commit, authors]
+
+for b in branches:
+    print(b)
+    get_branch_data('origin/master', b)
