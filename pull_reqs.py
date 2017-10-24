@@ -58,8 +58,8 @@ resp = requests.get(url, auth=myauth, params=pr_params)
 # TODO handle failed auth
 prs = resp.json()
 
-with open('sample_pr.txt', 'w') as f:
-    f.write(json.dumps(prs[0], indent=2))
+# with open('sample_pr.txt', 'w') as f:
+#     f.write(json.dumps(prs[0], indent=2))
 
 pr_numbers = [pr['number'] for pr in prs]
 print(pr_numbers)
@@ -84,6 +84,7 @@ print(json.dumps(simple_statuses, indent=2))
 url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=pr_number)
 resp = requests.get(url, auth=myauth)
 reviews = [extract_review_data(r) for r in resp.json()]
-# print(json.dumps(reviews, indent=2))
+print("REVIEWS")
+print(json.dumps(reviews, indent=2))
 
 
