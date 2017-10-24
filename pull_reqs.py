@@ -16,6 +16,7 @@ def extract_pr_data(pr):
     ret['user'] = pr['user']['login']
     ret['updated_at'] = pr['updated_at']
     ret['statuses_url'] = pr['statuses_url']
+    ret['mergeable'] = pr['mergeable']
     return ret
 
 def extract_review_data(review):
@@ -37,8 +38,8 @@ myauth=HTTPBasicAuth('jeff-zohrab', token)
 # print(resp)
 
 api_endpoint = 'https://api.github.com'
-org = 'KlickInc'
-repo = 'klick-genome'
+org = 'jeff-zohrab'
+repo = 'demo_gitflow'
 
 base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
 base_branch = 'develop'
@@ -53,7 +54,6 @@ pr_number = 2469
 # Get PR data
 url = "{base_url}/pulls".format(base_url=base_url)
 
-
 resp = requests.get(url, auth=myauth, params=pr_params)
 # TODO handle failed auth
 prs = resp.json()
@@ -62,12 +62,15 @@ with open('sample_pr.txt', 'w') as f:
     f.write(json.dumps(prs[0], indent=2))
 
 pr_numbers = [pr['number'] for pr in prs]
-simple_prs = [extract_pr_data(pr) for pr in prs]
-
 print(pr_numbers)
-# print(json.dumps(simple_prs, indent=2, sort_keys=True))
 
-url = simple_prs[0]['statuses_url']
+pr_number = pr_numbers[0]
+
+resp = requests.get("{base_url}/pulls/{number}".format(base_url=base_url,number=pr_number))
+mypr = resp.json()
+print(json.dumps(extract_pr_data(mypr), indent=2))
+
+url = mypr['statuses_url']
 resp = requests.get(url, auth=myauth)
 simple_statuses = [extract_jenkins_data(data) for data in resp.json()]
 print("STATUS")
