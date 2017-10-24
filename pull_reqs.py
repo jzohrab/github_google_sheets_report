@@ -27,25 +27,42 @@ myauth=HTTPBasicAuth('jeff-zohrab', token)
 # resp = requests.get('https://api.github.com/user', auth=myauth)
 # print(resp)
 
-base = 'https://api.github.com'
+api_endpoint = 'https://api.github.com'
+org = 'KlickInc'
+repo = 'klick-genome'
 
+base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
+base_branch = 'develop'
+
+pr_params = {
+    'state': 'open',
+    'base': base_branch,   # will not be added if base_branch is None.
+    }
 
 pr_number = 2469
 
 # Get PR data
-url = "{base}/repos/KlickInc/klick-genome/pulls?base=develop&state=open".format(base=base)
-resp = requests.get(url, auth=myauth)
+url = "{base_url}/pulls".format(base_url=base_url)
+
+
+resp = requests.get(url, auth=myauth, params=pr_params)
 # TODO handle failed auth
 prs = resp.json()
-prs = [extract_pr_data(pr) for pr in prs if pr['number'] == pr_number]
-print(json.dumps(prs, indent=2, sort_keys=True))
+
+with open('sample_pr.txt', 'w') as f:
+    f.write(json.dumps(prs[0], indent=2))
+
+pr_numbers = [pr['number'] for pr in prs]
+simple_prs = [extract_pr_data(pr) for pr in prs]
+print(pr_numbers)
+# print(json.dumps(simple_prs, indent=2, sort_keys=True))
 
 
 # 2469 has requested_reviewers
 
 # REVIEWS
 # PR 2464 has completed reviews; pr 2469 returns '[]'
-url = "{base}/repos/KlickInc/klick-genome/pulls/{number}/reviews".format(base=base, number=pr_number)
+url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=pr_number)
 resp = requests.get(url, auth=myauth)
 reviews = [extract_review_data(r) for r in resp.json()]
 print(json.dumps(reviews, indent=2))
