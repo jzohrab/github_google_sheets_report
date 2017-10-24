@@ -15,6 +15,7 @@ def extract_pr_data(pr):
     ret['title'] = pr['title']
     ret['user'] = pr['user']['login']
     ret['updated_at'] = pr['updated_at']
+    ret['statuses_url'] = pr['statuses_url']
     return ret
 
 def extract_review_data(review):
@@ -22,6 +23,14 @@ def extract_review_data(review):
     ret['user'] = review['user']['login']
     ret['state'] = review['state']
     return ret
+
+def extract_jenkins_data(status):
+    return {
+        "context": status['context'],
+        "target_url": status['target_url'],
+        "state": status['state'],
+        "updated_at": status['updated_at']
+    }
 
 myauth=HTTPBasicAuth('jeff-zohrab', token)
 # resp = requests.get('https://api.github.com/user', auth=myauth)
@@ -54,8 +63,15 @@ with open('sample_pr.txt', 'w') as f:
 
 pr_numbers = [pr['number'] for pr in prs]
 simple_prs = [extract_pr_data(pr) for pr in prs]
+
 print(pr_numbers)
 # print(json.dumps(simple_prs, indent=2, sort_keys=True))
+
+url = simple_prs[0]['statuses_url']
+resp = requests.get(url, auth=myauth)
+simple_statuses = [extract_jenkins_data(data) for data in resp.json()]
+print("STATUS")
+print(json.dumps(simple_statuses, indent=2))
 
 
 # 2469 has requested_reviewers
@@ -65,5 +81,6 @@ print(pr_numbers)
 url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=pr_number)
 resp = requests.get(url, auth=myauth)
 reviews = [extract_review_data(r) for r in resp.json()]
-print(json.dumps(reviews, indent=2))
+# print(json.dumps(reviews, indent=2))
+
 
