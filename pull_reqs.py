@@ -44,6 +44,12 @@ repo = 'demo_gitflow'
 base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
 base_branch = 'develop'
 
+# TODO: try using session, ref http://docs.python-requests.org/en/master/user/advanced/
+# s = requests.Session()
+# s.auth = ('user', 'pass')
+# s.headers.update({'x-test': 'true'})
+# s.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
+
 # GitHub API doesn't return merge status in the regular "pulls" query;
 # have to first get the list of PRs and then get each PR individually.
 
@@ -54,9 +60,15 @@ pr_params = {
     }
 url = "{base_url}/pulls".format(base_url=base_url)
 resp = requests.get(url, auth=myauth, params=pr_params)
+
+# GitHub Pull Request API deals primarily with PR numbers, but we're interested in
+# branch names.
+branch_to_pr_number = {pr['head']['ref']: pr['number'] for pr in resp.json()}
+print(branch_to_pr_number)
 pr_numbers = [pr['number'] for pr in resp.json()]
 print(pr_numbers)
 
+# TODO try headers, use timezone = America/Toronto
 def get_pr(number):
     resp = requests.get("{base_url}/pulls/{number}".format(base_url=base_url,number=number))
     return extract_pr_data(resp.json())
