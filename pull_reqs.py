@@ -61,9 +61,23 @@ def get_pr(number):
     resp = requests.get("{base_url}/pulls/{number}".format(base_url=base_url,number=number))
     return extract_pr_data(resp.json())
 
-prs = {n: get_pr(n) for n in pr_numbers}
-print(prs)
+def get_statuses(pr):
+    url = pr['statuses_url']
+    resp = requests.get(url)
+    return [extract_jenkins_data(data) for data in resp.json()]
 
+def get_reviews(n):
+    url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=n)
+    resp = requests.get(url, auth=myauth)
+    return [extract_review_data(r) for r in resp.json()]
+
+prs = {n: get_pr(n) for n in pr_numbers}
+statuses = {n: get_statuses(prs[n]) for n in pr_numbers}
+reviews = {n: get_reviews(n) for n in pr_numbers}
+
+print(prs)
+print(statuses)
+print(reviews)
 
 pr_number = pr_numbers[0]
 
@@ -81,7 +95,7 @@ print(json.dumps(simple_statuses, indent=2))
 # 2469 has requested_reviewers
 
 # REVIEWS
-# PR 2464 has completed reviews; pr 2469 returns '[]'
+
 url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=pr_number)
 resp = requests.get(url, auth=myauth)
 reviews = [extract_review_data(r) for r in resp.json()]
