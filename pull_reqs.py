@@ -14,22 +14,24 @@ https://stackoverflow.com/questions/18795713/parse-and-format-the-date-from-the-
     return d.strftime('%c')
 
 def extract_pr_data(pr):
-    ret = {}
-    ret['assignees'] = pr['assignees']
-    ret['branch'] = pr['head']['ref']
-    ret['url'] = pr['html_url']
-    ret['requested_reviewers'] = [u['login'] for u in pr['requested_reviewers']]
-    ret['title'] = pr['title']
-    ret['user'] = pr['user']['login']
-    ret['updated_at'] = github_datetime_to_date(pr['updated_at'])
-    ret['statuses_url'] = pr['statuses_url']
-    ret['mergeable'] = pr['mergeable']
+    ret = {
+        'assignees': pr['assignees'],
+        'branch': pr['head']['ref'],
+        'url': pr['html_url'],
+        'requested_reviewers': [u['login'] for u in pr['requested_reviewers']],
+        'title': pr['title'],
+        'user': pr['user']['login'],
+        'updated_at': github_datetime_to_date(pr['updated_at']),
+        'statuses_url': pr['statuses_url'],
+        'mergeable': pr['mergeable']
+    }
     return ret
 
 def extract_review_data(review):
-    ret = {}
-    ret['user'] = review['user']['login']
-    ret['state'] = review['state']
+    ret = {
+        'user': review['user']['login'],
+        'state': review['state']
+    }
     return ret
 
 def extract_jenkins_data(status):
@@ -47,6 +49,8 @@ myauth=HTTPBasicAuth('jeff-zohrab', token)
 api_endpoint = 'https://api.github.com'
 org = 'jeff-zohrab'
 repo = 'demo_gitflow'
+org = 'klickinc'
+repo = 'klick-genome'
 
 base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
 base_branch = 'develop'
@@ -77,18 +81,21 @@ print(pr_numbers)
 
 # TODO try headers, use timezone = America/Toronto
 def get_pr(number):
-    resp = requests.get("{base_url}/pulls/{number}".format(base_url=base_url,number=number))
+    url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
+    resp = requests.get(url, auth=myauth)
     return extract_pr_data(resp.json())
 
 def get_statuses(pr):
     url = pr['statuses_url']
-    resp = requests.get(url)
+    resp = requests.get(url, auth=myauth)
     return [extract_jenkins_data(data) for data in resp.json()]
 
 def get_reviews(n):
     url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=n)
     resp = requests.get(url, auth=myauth)
     return [extract_review_data(r) for r in resp.json()]
+
+pr_numbers = [2501]  # HACK
 
 prs = {n: get_pr(n) for n in pr_numbers}
 statuses = {n: get_statuses(prs[n]) for n in pr_numbers}
@@ -105,14 +112,35 @@ print_data("Statuses", statuses)
 print_data("Reviews", reviews)
 
 
+def lookup_default(dict, n, key):
+    if n not in dict:
+        return None
+    if key not in dict[n]:
+        return None
+    return dict[n][key]
+
 # Extract final table of data:
 # print(branch_to_pr_number)
 table = {
-    b: { 'number': branch_to_pr_number[b],
-         'b': 'uuuu',
-         
+    n: {
+        'assignees': prs[n]['assignees'],
+        'branch': prs[n]['branch'],
+        'url': prs[n]['url'],
+        'requested_reviewers': prs[n]['requested_reviewers'],
+        'title': prs[n]['title'],
+        'user': prs[n]['user'],
+        'updated_at': prs[n]['updated_at'],
+        'mergeable': prs[n]['mergeable'],
+
+        'context': statuses[n]['context'],
+        'target_url': statuses[n]['target_url'],
+        'jenkins_state': statuses[n]['state'],
+        'status_updated_at': statuses[n]['updated_at'],
+        
+        'reviewed_by': reviews[n]['user'],
+        'review_state': reviews[n]['state']
     }
-    for b in branch_to_pr_number.keys()
+    for n in pr_numbers
 }
 print(table)
 
