@@ -75,31 +75,32 @@ prs = {n: get_pr(n) for n in pr_numbers}
 statuses = {n: get_statuses(prs[n]) for n in pr_numbers}
 reviews = {n: get_reviews(n) for n in pr_numbers}
 
-print(prs)
-print(statuses)
-print(reviews)
-
-pr_number = pr_numbers[0]
-
-resp = requests.get("{base_url}/pulls/{number}".format(base_url=base_url,number=pr_number))
-mypr = resp.json()
-print(json.dumps(extract_pr_data(mypr), indent=2))
-
-url = mypr['statuses_url']
-resp = requests.get(url, auth=myauth)
-simple_statuses = [extract_jenkins_data(data) for data in resp.json()]
-print("STATUS")
-print(json.dumps(simple_statuses, indent=2))
 
 
-# 2469 has requested_reviewers
+# print(prs)
+# print(statuses)
+# print(reviews)
 
-# REVIEWS
+# pr_number = pr_numbers[0]
 
-url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=pr_number)
-resp = requests.get(url, auth=myauth)
-reviews = [extract_review_data(r) for r in resp.json()]
-print("REVIEWS")
-print(json.dumps(reviews, indent=2))
+# resp = requests.get("{base_url}/pulls/{number}".format(base_url=base_url,number=pr_number))
+# mypr = resp.json()
+# print(json.dumps(extract_pr_data(mypr), indent=2))
 
+# url = mypr['statuses_url']
+# resp = requests.get(url, auth=myauth)
+# simple_statuses = [extract_jenkins_data(data) for data in resp.json()]
+# print("STATUS")
+# print(json.dumps(simple_statuses, indent=2))
+
+
+# # 2469 has requested_reviewers
+
+# # REVIEWS
+
+# url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=pr_number)
+# resp = requests.get(url, auth=myauth)
+# reviews = [extract_review_data(r) for r in resp.json()]
+# print("REVIEWS")
+# print(json.dumps(reviews, indent=2))
 
