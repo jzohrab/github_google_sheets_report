@@ -75,11 +75,10 @@ prs = {n: get_pr(n) for n in pr_numbers}
 statuses = {n: get_statuses(prs[n]) for n in pr_numbers}
 reviews = {n: get_reviews(n) for n in pr_numbers}
 
+print(prs)
+print(statuses)
+print(reviews)
 
-
-# print(prs)
-# print(statuses)
-# print(reviews)
 
 # pr_number = pr_numbers[0]
 
