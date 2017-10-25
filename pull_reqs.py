@@ -132,13 +132,13 @@ table = {
         'updated_at': prs[n]['updated_at'],
         'mergeable': prs[n]['mergeable'],
 
-        'context': statuses[n]['context'],
-        'target_url': statuses[n]['target_url'],
-        'jenkins_state': statuses[n]['state'],
-        'status_updated_at': statuses[n]['updated_at'],
+        'context': lookup_default(statuses, n, 'context'),
+        'target_url': lookup_default(statuses, n, 'target_url'),
+        'jenkins_state': lookup_default(statuses, n, 'state'),
+        'status_updated_at': lookup_default(statuses, n, 'updated_at'),
         
-        'reviewed_by': reviews[n]['user'],
-        'review_state': reviews[n]['state']
+        'reviewed_by': lookup_default(reviews, n, 'user'),
+        'review_state': lookup_default(reviews, n, 'state')
     }
     for n in pr_numbers
 }
