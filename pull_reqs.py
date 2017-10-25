@@ -49,8 +49,8 @@ myauth=HTTPBasicAuth('jeff-zohrab', token)
 api_endpoint = 'https://api.github.com'
 org = 'jeff-zohrab'
 repo = 'demo_gitflow'
-org = 'klickinc'
-repo = 'klick-genome'
+# org = 'klickinc'
+# repo = 'klick-genome'
 
 base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
 base_branch = 'develop'
