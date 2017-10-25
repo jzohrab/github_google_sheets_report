@@ -44,25 +44,26 @@ repo = 'demo_gitflow'
 base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
 base_branch = 'develop'
 
+# GitHub API doesn't return merge status in the regular "pulls" query;
+# have to first get the list of PRs and then get each PR individually.
+
+# Get open PR numbers to branch in question
 pr_params = {
     'state': 'open',
     'base': base_branch,   # will not be added if base_branch is None.
     }
-
-pr_number = 2469
-
-# Get PR data
 url = "{base_url}/pulls".format(base_url=base_url)
-
 resp = requests.get(url, auth=myauth, params=pr_params)
-# TODO handle failed auth
-prs = resp.json()
-
-# with open('sample_pr.txt', 'w') as f:
-#     f.write(json.dumps(prs[0], indent=2))
-
-pr_numbers = [pr['number'] for pr in prs]
+pr_numbers = [pr['number'] for pr in resp.json()]
 print(pr_numbers)
+
+def get_pr(number):
+    resp = requests.get("{base_url}/pulls/{number}".format(base_url=base_url,number=number))
+    return extract_pr_data(resp.json())
+
+prs = {n: get_pr(n) for n in pr_numbers}
+print(prs)
+
 
 pr_number = pr_numbers[0]
 
