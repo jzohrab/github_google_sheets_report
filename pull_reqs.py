@@ -95,8 +95,6 @@ def get_reviews(n):
     resp = requests.get(url, auth=myauth)
     return [extract_review_data(r) for r in resp.json()]
 
-pr_numbers = [2501]  # HACK
-
 prs = {n: get_pr(n) for n in pr_numbers}
 statuses = {n: get_statuses(prs[n]) for n in pr_numbers}
 reviews = {n: get_reviews(n) for n in pr_numbers}
