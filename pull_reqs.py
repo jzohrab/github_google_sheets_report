@@ -94,10 +94,27 @@ prs = {n: get_pr(n) for n in pr_numbers}
 statuses = {n: get_statuses(prs[n]) for n in pr_numbers}
 reviews = {n: get_reviews(n) for n in pr_numbers}
 
-print(prs)
-print(statuses)
-print(reviews)
+def print_data(s, j):
+    print('-------------------------------------')
+    print(s)
+    print(json.dumps(j, indent=2, sort_keys=True))
+    print('-------------------------------------')
 
+print_data("PRs", prs)
+print_data("Statuses", statuses)
+print_data("Reviews", reviews)
+
+
+# Extract final table of data:
+# print(branch_to_pr_number)
+table = {
+    b: { 'number': branch_to_pr_number[b],
+         'b': 'uuuu',
+         
+    }
+    for b in branch_to_pr_number.keys()
+}
+print(table)
 
 # pr_number = pr_numbers[0]
 
