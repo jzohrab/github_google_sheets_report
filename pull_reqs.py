@@ -1,10 +1,17 @@
 import requests
 import json
 import sys
+import datetime
 
 from requests.auth import HTTPBasicAuth
 
 token=sys.argv[1]
+
+def github_datetime_to_date(s):
+    """Extracts date from GitHub date, per
+https://stackoverflow.com/questions/18795713/parse-and-format-the-date-from-the-github-api-in-python"""
+    d = datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ")
+    return d.strftime('%c')
 
 def extract_pr_data(pr):
     ret = {}
@@ -14,7 +21,7 @@ def extract_pr_data(pr):
     ret['requested_reviewers'] = [u['login'] for u in pr['requested_reviewers']]
     ret['title'] = pr['title']
     ret['user'] = pr['user']['login']
-    ret['updated_at'] = pr['updated_at']
+    ret['updated_at'] = github_datetime_to_date(pr['updated_at'])
     ret['statuses_url'] = pr['statuses_url']
     ret['mergeable'] = pr['mergeable']
     return ret
@@ -30,7 +37,7 @@ def extract_jenkins_data(status):
         "context": status['context'],
         "target_url": status['target_url'],
         "state": status['state'],
-        "updated_at": status['updated_at']
+        "updated_at": github_datetime_to_date(status['updated_at'])
     }
 
 myauth=HTTPBasicAuth('jeff-zohrab', token)
