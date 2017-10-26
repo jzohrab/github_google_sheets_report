@@ -86,19 +86,15 @@ pr_numbers = [pr['number'] for pr in all_pulls]
 
 def get_pr(number):
     url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
-    resp = requests.get(url, auth=myauth)
-    return extract_pr_data(resp.json())
+    return extract_pr_data(get_json(url))
 
 def get_statuses(pr):
     url = pr['statuses_url']
-    resp = requests.get(url, auth=myauth)
-    # print_data('STATUSES', resp.json())
-    return [extract_jenkins_data(data) for data in resp.json()]
+    return [extract_jenkins_data(data) for data in get_json(url)]
 
 def get_reviews(n):
     url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=n)
-    resp = requests.get(url, auth=myauth)
-    return [extract_review_data(r) for r in resp.json()]
+    return [extract_review_data(r) for r in get_json(url)]
 
 def print_data(s, j):
     print('-------------------------------------')
