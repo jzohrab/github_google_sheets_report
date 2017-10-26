@@ -44,10 +44,6 @@ def extract_jenkins_data(status):
         'updated_at': github_datetime_to_date(status['updated_at'])
     }
 
-myauth=HTTPBasicAuth('jeff-zohrab', token)
-# resp = requests.get('https://api.github.com/user', auth=myauth)
-# print(resp)
-
 api_endpoint = 'https://api.github.com'
 org = 'jeff-zohrab'
 repo = 'demo_gitflow'
@@ -72,6 +68,15 @@ pr_params = {
     'base': base_branch,   # will not be added if base_branch is None.
     }
 url = "{base_url}/pulls".format(base_url=base_url)
+
+myauth=HTTPBasicAuth('jeff-zohrab', token)
+
+def get_json(url, params = None):
+    myauth=HTTPBasicAuth('jeff-zohrab', token)
+    resp = requests.get(url, auth = myauth, params = params)
+    return resp.json()
+
+
 resp = requests.get(url, auth=myauth, params=pr_params)
 
 
@@ -83,7 +88,6 @@ pr_numbers = [pr['number'] for pr in resp.json()]
 # print(pr_numbers)
 # sys.exit()
 
-# TODO try headers, use timezone = America/Toronto
 def get_pr(number):
     url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
     resp = requests.get(url, auth=myauth)
