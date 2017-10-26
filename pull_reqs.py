@@ -77,14 +77,13 @@ def get_json(url, params = None):
     return resp.json()
 
 
-resp = requests.get(url, auth=myauth, params=pr_params)
-
+resp = get_json(url, params=pr_params)
 
 # GitHub Pull Request API deals primarily with PR numbers, but we're interested in
 # branch names.
-branch_to_pr_number = {pr['head']['ref']: pr['number'] for pr in resp.json()}
+branch_to_pr_number = {pr['head']['ref']: pr['number'] for pr in resp}
 # print(branch_to_pr_number)
-pr_numbers = [pr['number'] for pr in resp.json()]
+pr_numbers = [pr['number'] for pr in resp]
 # print(pr_numbers)
 # sys.exit()
 
