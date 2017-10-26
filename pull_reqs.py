@@ -17,6 +17,7 @@ def extract_pr_data(pr):
     ret = {
         'assignees': pr['assignees'],
         'branch': pr['head']['ref'],
+        'number': pr['number'],
         'url': pr['html_url'],
         'requested_reviewers': [u['login'] for u in pr['requested_reviewers']],
         'title': pr['title'],
@@ -36,10 +37,10 @@ def extract_review_data(review):
 
 def extract_jenkins_data(status):
     return {
-        "context": status['context'],
-        "target_url": status['target_url'],
-        "state": status['state'],
-        "updated_at": github_datetime_to_date(status['updated_at'])
+        'context': status['context'],
+        'target_url': status['target_url'],
+        'state': status['state'],
+        'updated_at': github_datetime_to_date(status['updated_at'])
     }
 
 myauth=HTTPBasicAuth('jeff-zohrab', token)
@@ -72,6 +73,7 @@ pr_params = {
 url = "{base_url}/pulls".format(base_url=base_url)
 resp = requests.get(url, auth=myauth, params=pr_params)
 
+
 # GitHub Pull Request API deals primarily with PR numbers, but we're interested in
 # branch names.
 branch_to_pr_number = {pr['head']['ref']: pr['number'] for pr in resp.json()}
@@ -95,15 +97,38 @@ def get_reviews(n):
     resp = requests.get(url, auth=myauth)
     return [extract_review_data(r) for r in resp.json()]
 
-prs = {n: get_pr(n) for n in pr_numbers}
-statuses = {n: get_statuses(prs[n]) for n in pr_numbers}
-reviews = {n: get_reviews(n) for n in pr_numbers}
-
 def print_data(s, j):
     print('-------------------------------------')
     print(s)
     print(json.dumps(j, indent=2, sort_keys=True))
     print('-------------------------------------')
+
+
+print_data('raw prs', resp.json())
+
+# Need to call API again to get the branch "mergeable" status.
+prs = [get_pr(n) for n in pr_numbers]
+
+def add_status(pr):
+    pr['statuses'] = get_statuses(pr)
+    return pr
+def add_reviews(pr):
+    pr['reviews'] = get_reviews(pr['number'])
+    return pr
+
+print_data('before_add', prs)
+
+prs = list(map(add_status, prs))  # list() required to serialize data
+prs = list(map(add_reviews, prs))
+
+print_data('after_add', prs)
+
+print('QUITTING')
+sys.exit()
+
+prs = {n: get_pr(n) for n in pr_numbers}
+statuses = {n: get_statuses(prs[n]) for n in pr_numbers}
+reviews = {n: get_reviews(n) for n in pr_numbers}
 
 print_data("PRs", prs)
 print_data("Statuses", statuses)
