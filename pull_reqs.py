@@ -40,6 +40,7 @@ def extract_jenkins_data(status):
         'context': status['context'],
         'target_url': status['target_url'],
         'state': status['state'],
+        'description': status['description'],
         'updated_at': github_datetime_to_date(status['updated_at'])
     }
 
@@ -77,9 +78,10 @@ resp = requests.get(url, auth=myauth, params=pr_params)
 # GitHub Pull Request API deals primarily with PR numbers, but we're interested in
 # branch names.
 branch_to_pr_number = {pr['head']['ref']: pr['number'] for pr in resp.json()}
-print(branch_to_pr_number)
+# print(branch_to_pr_number)
 pr_numbers = [pr['number'] for pr in resp.json()]
-print(pr_numbers)
+# print(pr_numbers)
+# sys.exit()
 
 # TODO try headers, use timezone = America/Toronto
 def get_pr(number):
@@ -90,6 +92,7 @@ def get_pr(number):
 def get_statuses(pr):
     url = pr['statuses_url']
     resp = requests.get(url, auth=myauth)
+    # print_data('STATUSES', resp.json())
     return [extract_jenkins_data(data) for data in resp.json()]
 
 def get_reviews(n):
@@ -104,7 +107,7 @@ def print_data(s, j):
     print('-------------------------------------')
 
 
-print_data('raw prs', resp.json())
+# print_data('raw prs', resp.json())
 
 # Need to call API again to get the branch "mergeable" status.
 prs = [get_pr(n) for n in pr_numbers]
@@ -116,7 +119,7 @@ def add_reviews(pr):
     pr['reviews'] = get_reviews(pr['number'])
     return pr
 
-print_data('before_add', prs)
+# print_data('before_add', prs)
 
 prs = list(map(add_status, prs))  # list() required to serialize data
 prs = list(map(add_reviews, prs))
