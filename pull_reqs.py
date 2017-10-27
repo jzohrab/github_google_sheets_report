@@ -65,7 +65,6 @@ def extract_review_data(review):
 def extract_jenkins_data(status):
     return {
         'context': status['context'],
-        'target_url': status['target_url'],
         'state': status['state'],
         'description': status['description'],
         'updated_at': github_datetime_to_date(status['updated_at'])
