@@ -71,7 +71,9 @@ def get_statuses(url):
             'description': status['description'],
             'updated_at': github_datetime_to_date(status['updated_at'])
         }
-    return [simplify(data) for data in get_json(url)]
+    statuses = [simplify(data) for data in get_json(url)]
+    newlist = sorted(statuses, key=lambda k: k['updated_at'], reverse = True)
+    return newlist
 
 def get_reviews(n):
     def simplify(review):
