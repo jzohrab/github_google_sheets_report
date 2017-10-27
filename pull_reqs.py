@@ -6,7 +6,12 @@ import os
 
 from requests.auth import HTTPBasicAuth
 
-token=sys.argv[1]
+
+token=os.environ['GITHUB_TOKEN']
+if (token is None or token.strip() == ''):
+    print("Missing GITHUB_TOKEN env variable")
+    sys.exit()
+
 
 def github_datetime_to_date(s):
     """Extracts date from GitHub date, per
