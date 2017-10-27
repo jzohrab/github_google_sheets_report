@@ -36,28 +36,57 @@ else:
     branches = [b.strip() for b in rawdata
                 if "HEAD" not in b and b != '']
 
+reference_branch = "{origin}/{branch}".format(
+    origin=config[':origin_name'],
+    branch=config[':master_branch']
+)
+
+branches = [b for b in branches if b != reference_branch]
 print(branches)
 
-def get_branch_data(master, branch_name):
-    cmd = "git log --date=short --format=\"%cd %aE\" {m}..{b}"
-    cmd = cmd.format(m=master, b=branch_name)
+def clean_author_name(s):
+    """Semi-standardize author names where possible.
+    e.g., my sample data had 'first-last' and
+    'First Last'.  Convert both of these to 'flast'"""
+    ret = s
+    if ',' in s:
+        (last, first) = s.split(',', 1)
+        ret = "{f}{last}".format(f = first[0], last = last)
+    if ' ' in s:
+        (first, last) = s.split(' ', 1)
+        ret = "{f}{last}".format(f = first[0], last = last)
+    if '-' in s:
+        (first, last) = s.split('-', 1)
+        ret = "{f}{last}".format(f = first[0], last = last)
+    return ret.lower()
+
+def get_branch_data(reference_branch, branch_name):
+    cmd = "git log --date=short --format=\"%cd %an\" {m}..{b}"
+    cmd = cmd.format(m=reference_branch, b=branch_name)
     result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
     rawdata = result.stdout.decode().split("\n")
-    print(rawdata)
+    commits_ahead = [c for c in rawdata if c.strip() != '']
+    # print(commits_ahead)
 
-  #   commits_ahead = log.split("\n").map do |c|
-  #   c.split(' ')
-  # end
-  # num_commits_ahead = commits_ahead.size
-  # latest_commit = commits_ahead.map { |d, c| d }.max
-  # authors = commits_ahead.map { |d, c| c }.sort.uniq
-  # authors = authors.join(', ')
+    num_commits_ahead = len(commits_ahead)
+    latest_commit = None
+    authors = None
+    if num_commits_ahead > 0:
+        latest_commit = max([c.split()[0] for c in commits_ahead])
+        authors = list(set(
+            [clean_author_name(c.split(' ', 1)[1]) for c in commits_ahead]
+        ))
   
-  # # Expensive ... add if desired.
-  # # approx_diff_linecount = `git diff #{master}...#{branch_name} | grep ^[+-] | wc -l`.strip
+    # Expensive ... add if desired.
+    # approx_diff_linecount =
+    # `git diff #{master}...#{branch_name} | grep ^[+-] | wc -l`.strip
 
-  # return [branch_name, num_commits_ahead, latest_commit, authors]
+    return {
+        'branch_name': branch_name,
+        'ahead': num_commits_ahead,
+        'latest_commit_date': latest_commit,
+        'authors': authors
+        }
 
-for b in branches:
-    print(b)
-    get_branch_data('origin/master', b)
+data = [get_branch_data(reference_branch, b) for b in branches]
+print(data)
