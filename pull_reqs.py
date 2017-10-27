@@ -54,16 +54,17 @@ def get_pr(number):
             'title': pr['title'],
             'user': pr['user']['login'],
             'updated_at': github_datetime_to_date(pr['updated_at']),
-            'statuses_url': pr['statuses_url'],
             'mergeable': pr['mergeable']
         }
     url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
-    pr = simplify(get_json(url))
-    pr['statuses'] = get_statuses(pr['statuses_url'])
+    raw_pr = get_json(url)
+    pr = simplify(raw_pr)
+    pr['status'] = get_last_status(raw_pr['statuses_url'])
     pr['reviews'] = get_reviews(number)
     return pr
 
-def get_statuses(url):
+def get_last_status(url):
+    """Get the last clear success or error status."""
     def simplify(status):
         return {
             'context': status['context'],
@@ -71,9 +72,20 @@ def get_statuses(url):
             'description': status['description'],
             'updated_at': github_datetime_to_date(status['updated_at'])
         }
-    statuses = [simplify(data) for data in get_json(url)]
+    aborted_msg = 'The build of this commit was aborted'
+    jenkins_context = 'continuous-integration/jenkins/branch'
+    statuses = [
+        simplify(s)
+        for s in get_json(url)
+        if ( s['context'] == jenkins_context and
+             s['state'] != 'pending' and
+             s['description'] != aborted_msg
+         )
+    ]
+    if len(statuses) == 0:
+        return None
     newlist = sorted(statuses, key=lambda k: k['updated_at'], reverse = True)
-    return newlist
+    return newlist[0]['state']
 
 def get_reviews(n):
     def simplify(review):
@@ -104,6 +116,7 @@ pr_params = {
 url = "{base_url}/pulls".format(base_url=base_url)
 all_pulls = get_json(url, params=pr_params)
 pr_numbers = [pr['number'] for pr in all_pulls]
+print(pr_numbers)
 
 # GitHub API doesn't return merge status in the regular "pulls" query;
 # have to first get the list of PRs and then get each PR individually.
