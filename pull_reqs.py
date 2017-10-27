@@ -49,11 +49,9 @@ https://stackoverflow.com/questions/18795713/parse-and-format-the-date-from-the-
 def get_pr(number):
     def simplify(pr):
         return {
-            # 'assignees': pr['assignees'],
             'branch': pr['head']['ref'],
             'number': pr['number'],
             'url': pr['html_url'],
-            # 'requested_reviewers': [u['login'] for u in pr['requested_reviewers']],
             'title': pr['title'],
             'user': pr['user']['login'],
             'updated_at': github_datetime_to_date(pr['updated_at']),
