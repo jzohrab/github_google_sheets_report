@@ -19,34 +19,45 @@ https://stackoverflow.com/questions/18795713/parse-and-format-the-date-from-the-
     d = datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ")
     return d.strftime('%c')
 
-def extract_pr_data(pr):
-    ret = {
-        'assignees': pr['assignees'],
-        'branch': pr['head']['ref'],
-        'number': pr['number'],
-        'url': pr['html_url'],
-        'requested_reviewers': [u['login'] for u in pr['requested_reviewers']],
-        'title': pr['title'],
-        'user': pr['user']['login'],
-        'updated_at': github_datetime_to_date(pr['updated_at']),
-        'statuses_url': pr['statuses_url'],
-        'mergeable': pr['mergeable']
-    }
-    return ret
 
 def get_pr(number):
+    def simplify(pr):
+        return {
+            'assignees': pr['assignees'],
+            'branch': pr['head']['ref'],
+            'number': pr['number'],
+            'url': pr['html_url'],
+            'requested_reviewers': [u['login'] for u in pr['requested_reviewers']],
+            'title': pr['title'],
+            'user': pr['user']['login'],
+            'updated_at': github_datetime_to_date(pr['updated_at']),
+            'statuses_url': pr['statuses_url'],
+            'mergeable': pr['mergeable']
+        }
     url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
-    pr = extract_pr_data(get_json(url))
+    pr = simplify(get_json(url))
     pr['statuses'] = get_statuses(pr['statuses_url'])
     pr['reviews'] = get_reviews(number)
     return pr
 
 def get_statuses(url):
-    return [extract_jenkins_data(data) for data in get_json(url)]
+    def simplify(status):
+        return {
+            'context': status['context'],
+            'state': status['state'],
+            'description': status['description'],
+            'updated_at': github_datetime_to_date(status['updated_at'])
+        }
+    return [simplify(data) for data in get_json(url)]
 
 def get_reviews(n):
+    def simplify(review):
+        return {
+            'user': review['user']['login'],
+            'state': review['state']
+        }
     url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=n)
-    return [extract_review_data(r) for r in get_json(url)]
+    return [simplify(r) for r in get_json(url)]
 
 def print_data(s, j):
     print('-------------------------------------')
@@ -54,21 +65,6 @@ def print_data(s, j):
     print(json.dumps(j, indent=2, sort_keys=True))
     print('-------------------------------------')
 
-
-def extract_review_data(review):
-    ret = {
-        'user': review['user']['login'],
-        'state': review['state']
-    }
-    return ret
-
-def extract_jenkins_data(status):
-    return {
-        'context': status['context'],
-        'state': status['state'],
-        'description': status['description'],
-        'updated_at': github_datetime_to_date(status['updated_at'])
-    }
 
 def get_json(url, params = None):
     """Gets data from the URL, and writes it to a file for subsequent use."""
