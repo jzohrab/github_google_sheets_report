@@ -34,6 +34,27 @@ def extract_pr_data(pr):
     }
     return ret
 
+def get_pr(number):
+    url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
+    pr = extract_pr_data(get_json(url))
+    pr['statuses'] = get_statuses(pr['statuses_url'])
+    pr['reviews'] = get_reviews(number)
+    return pr
+
+def get_statuses(url):
+    return [extract_jenkins_data(data) for data in get_json(url)]
+
+def get_reviews(n):
+    url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=n)
+    return [extract_review_data(r) for r in get_json(url)]
+
+def print_data(s, j):
+    print('-------------------------------------')
+    print(s)
+    print(json.dumps(j, indent=2, sort_keys=True))
+    print('-------------------------------------')
+
+
 def extract_review_data(review):
     ret = {
         'user': review['user']['login'],
@@ -94,26 +115,6 @@ def get_json(url, params = None):
 all_pulls = get_json(url, params=pr_params)
 branch_to_pr_number = {pr['head']['ref']: pr['number'] for pr in all_pulls}
 pr_numbers = [pr['number'] for pr in all_pulls]
-
-def get_pr(number):
-    url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
-    pr = extract_pr_data(get_json(url))
-    pr['statuses'] = get_statuses(pr['statuses_url'])
-    pr['reviews'] = get_reviews(number)
-    return pr
-
-def get_statuses(url):
-    return [extract_jenkins_data(data) for data in get_json(url)]
-
-def get_reviews(n):
-    url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=n)
-    return [extract_review_data(r) for r in get_json(url)]
-
-def print_data(s, j):
-    print('-------------------------------------')
-    print(s)
-    print(json.dumps(j, indent=2, sort_keys=True))
-    print('-------------------------------------')
 
 # print_data('raw prs', resp.json())
 
