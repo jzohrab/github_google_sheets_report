@@ -13,6 +13,29 @@ if (token is None or token.strip() == ''):
     sys.exit()
 
 
+def get_json(url, params = None):
+    """Gets data from the URL, and writes it to a file for subsequent use."""
+    filename = url.replace(api_endpoint, '').replace('/', '_')
+    currdir = os.path.dirname(os.path.abspath(__file__))
+    cachedir = os.path.join(currdir, 'test_json')
+    if not os.path.exists(cachedir):
+        os.makedirs(cachedir)
+    cachefile = os.path.join(cachedir, filename)
+
+    ret = None
+    if (os.path.exists(cachefile)):
+        with open(cachefile, 'r') as f:
+            ret = json.load(f)
+    else:
+        myauth=HTTPBasicAuth('jeff-zohrab', token)
+        resp = requests.get(url, auth = myauth, params = params)
+        ret = resp.json()
+        with open(cachefile, 'wt') as out:
+            json.dump(ret, out, sort_keys=True, indent=4, separators=(',', ': '))
+    
+    return ret
+
+
 def github_datetime_to_date(s):
     """Extracts date from GitHub date, per
 https://stackoverflow.com/questions/18795713/parse-and-format-the-date-from-the-github-api-in-python"""
@@ -65,28 +88,6 @@ def print_data(s, j):
     print(json.dumps(j, indent=2, sort_keys=True))
     print('-------------------------------------')
 
-
-def get_json(url, params = None):
-    """Gets data from the URL, and writes it to a file for subsequent use."""
-    filename = url.replace(api_endpoint, '').replace('/', '_')
-    currdir = os.path.dirname(os.path.abspath(__file__))
-    cachedir = os.path.join(currdir, 'test_json')
-    if not os.path.exists(cachedir):
-        os.makedirs(cachedir)
-    cachefile = os.path.join(cachedir, filename)
-
-    ret = None
-    if (os.path.exists(cachefile)):
-        with open(cachefile, 'r') as f:
-            ret = json.load(f)
-    else:
-        myauth=HTTPBasicAuth('jeff-zohrab', token)
-        resp = requests.get(url, auth = myauth, params = params)
-        ret = resp.json()
-        with open(cachefile, 'wt') as out:
-            json.dump(ret, out, sort_keys=True, indent=4, separators=(',', ': '))
-    
-    return ret
 
 api_endpoint = 'https://api.github.com'
 org = 'jeff-zohrab'
