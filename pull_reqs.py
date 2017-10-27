@@ -2,6 +2,7 @@ import requests
 import json
 import sys
 import datetime
+import pytz
 import os
 
 from requests.auth import HTTPBasicAuth
@@ -39,8 +40,10 @@ def get_json(url, params = None):
 def github_datetime_to_date(s):
     """Extracts date from GitHub date, per
 https://stackoverflow.com/questions/18795713/parse-and-format-the-date-from-the-github-api-in-python"""
-    d = datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ")
-    return d.strftime('%c')
+    toronto = pytz.timezone('America/Toronto')
+    d = pytz.utc.localize(datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
+    toronto_d = d.astimezone(toronto)
+    return toronto_d.strftime('%c')
 
 
 def get_pr(number):
