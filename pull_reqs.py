@@ -71,25 +71,6 @@ def extract_jenkins_data(status):
         'updated_at': github_datetime_to_date(status['updated_at'])
     }
 
-api_endpoint = 'https://api.github.com'
-org = 'jeff-zohrab'
-repo = 'demo_gitflow'
-# org = 'klickinc'
-# repo = 'klick-genome'
-
-base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
-base_branch = 'develop'
-
-
-# Get open PR numbers to branch in question
-pr_params = {
-    'state': 'open',
-    'base': base_branch,   # will not be added if base_branch is None.
-    }
-url = "{base_url}/pulls".format(base_url=base_url)
-
-myauth=HTTPBasicAuth('jeff-zohrab', token)
-
 def get_json(url, params = None):
     """Gets data from the URL, and writes it to a file for subsequent use."""
     filename = url.replace(api_endpoint, '').replace('/', '_')
@@ -112,11 +93,19 @@ def get_json(url, params = None):
     
     return ret
 
-all_pulls = get_json(url, params=pr_params)
-branch_to_pr_number = {pr['head']['ref']: pr['number'] for pr in all_pulls}
-pr_numbers = [pr['number'] for pr in all_pulls]
+api_endpoint = 'https://api.github.com'
+org = 'jeff-zohrab'
+repo = 'demo_gitflow'
+base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
+base_branch = 'develop'
+pr_params = {
+    'state': 'open',
+    'base': base_branch  # if None, returns all PRs
+    }
 
-# print_data('raw prs', resp.json())
+url = "{base_url}/pulls".format(base_url=base_url)
+all_pulls = get_json(url, params=pr_params)
+pr_numbers = [pr['number'] for pr in all_pulls]
 
 # GitHub API doesn't return merge status in the regular "pulls" query;
 # have to first get the list of PRs and then get each PR individually.
