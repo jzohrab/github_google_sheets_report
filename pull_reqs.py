@@ -59,14 +59,6 @@ repo = 'demo_gitflow'
 base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
 base_branch = 'develop'
 
-# TODO: try using session, ref http://docs.python-requests.org/en/master/user/advanced/
-# s = requests.Session()
-# s.auth = ('user', 'pass')
-# s.headers.update({'x-test': 'true'})
-# s.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
-
-# GitHub API doesn't return merge status in the regular "pulls" query;
-# have to first get the list of PRs and then get each PR individually.
 
 # Get open PR numbers to branch in question
 pr_params = {
@@ -99,20 +91,18 @@ def get_json(url, params = None):
     
     return ret
 
-
 all_pulls = get_json(url, params=pr_params)
 branch_to_pr_number = {pr['head']['ref']: pr['number'] for pr in all_pulls}
 pr_numbers = [pr['number'] for pr in all_pulls]
 
-# branch_to_pr_number = {'b': 8}
-# pr_numbers = [8]
-
 def get_pr(number):
     url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
-    return extract_pr_data(get_json(url))
+    pr = extract_pr_data(get_json(url))
+    pr['statuses'] = get_statuses(pr['statuses_url'])
+    pr['reviews'] = get_reviews(number)
+    return pr
 
-def get_statuses(pr):
-    url = pr['statuses_url']
+def get_statuses(url):
     return [extract_jenkins_data(data) for data in get_json(url)]
 
 def get_reviews(n):
@@ -125,23 +115,12 @@ def print_data(s, j):
     print(json.dumps(j, indent=2, sort_keys=True))
     print('-------------------------------------')
 
-
 # print_data('raw prs', resp.json())
 
-# Need to call API again to get the branch "mergeable" status.
+# GitHub API doesn't return merge status in the regular "pulls" query;
+# have to first get the list of PRs and then get each PR individually.
 prs = [get_pr(n) for n in pr_numbers]
 
-def add_status(pr):
-    pr['statuses'] = get_statuses(pr)
-    return pr
-def add_reviews(pr):
-    pr['reviews'] = get_reviews(pr['number'])
-    return pr
-
-# print_data('before_add', prs)
-
-prs = list(map(add_status, prs))  # list() required to serialize data
-prs = list(map(add_reviews, prs))
 
 print_data('after_add', prs)
 
