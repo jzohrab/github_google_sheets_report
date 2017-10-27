@@ -2,6 +2,7 @@ import requests
 import json
 import sys
 import datetime
+import os
 
 from requests.auth import HTTPBasicAuth
 
@@ -72,17 +73,34 @@ url = "{base_url}/pulls".format(base_url=base_url)
 myauth=HTTPBasicAuth('jeff-zohrab', token)
 
 def get_json(url, params = None):
-    myauth=HTTPBasicAuth('jeff-zohrab', token)
-    resp = requests.get(url, auth = myauth, params = params)
-    return resp.json()
+    """Gets data from the URL, and writes it to a file for subsequent use."""
+    filename = url.replace(api_endpoint, '').replace('/', '_')
+    currdir = os.path.dirname(os.path.abspath(__file__))
+    cachedir = os.path.join(currdir, 'test_json')
+    if not os.path.exists(cachedir):
+        os.makedirs(cachedir)
+    cachefile = os.path.join(cachedir, filename)
+
+    ret = None
+    if (os.path.exists(cachefile)):
+        with open(cachefile, 'r') as f:
+            ret = json.load(f)
+    else:
+        myauth=HTTPBasicAuth('jeff-zohrab', token)
+        resp = requests.get(url, auth = myauth, params = params)
+        ret = resp.json()
+        with open(cachefile, 'wt') as out:
+            json.dump(ret, out, sort_keys=True, indent=4, separators=(',', ': '))
+    
+    return ret
 
 
 all_pulls = get_json(url, params=pr_params)
-
-# GitHub Pull Request API deals primarily with PR numbers, but we're interested in
 branch_to_pr_number = {pr['head']['ref']: pr['number'] for pr in all_pulls}
 pr_numbers = [pr['number'] for pr in all_pulls]
 
+# branch_to_pr_number = {'b': 8}
+# pr_numbers = [8]
 
 def get_pr(number):
     url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
