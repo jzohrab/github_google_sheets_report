@@ -116,7 +116,6 @@ pr_params = {
 url = "{base_url}/pulls".format(base_url=base_url)
 all_pulls = get_json(url, params=pr_params)
 pr_numbers = [pr['number'] for pr in all_pulls]
-print(pr_numbers)
 
 # GitHub API doesn't return merge status in the regular "pulls" query;
 # have to first get the list of PRs and then get each PR individually.
