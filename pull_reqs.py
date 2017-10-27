@@ -62,8 +62,15 @@ def get_pr(number):
     url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
     raw_pr = get_json(url)
     pr = simplify(raw_pr)
+
     pr['status'] = get_last_status(raw_pr['statuses_url'])
-    pr['reviews'] = get_reviews(number)
+
+    reviews = get_reviews(number)
+    approved = [r['user'] for r in reviews if r['state'] == 'APPROVED']
+    declined = [r['user'] for r in reviews if r['state'] == 'CHANGES_REQUESTED']
+    pr['approved'] = approved
+    pr['declined'] = declined
+
     return pr
 
 def get_last_status(url):
