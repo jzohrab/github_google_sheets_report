@@ -71,8 +71,11 @@ def index():
 
 @app.route('/_server_data')
 def get_server_data():
-    
-    collection = [dict(zip(columns, [1,2,3,4])), dict(zip(columns, [5,25,445,99995]))]
+
+    img = "<img src='https://www.datatables.net/media/images/nav-dt.png' style='height:30px; width:30px'>"
+    check = "<img src='/static/img/green_check.png' style='height:25px'>"
+    x = "<img src='/static/img/red_x.png' style='height:15px'>"
+    collection = [dict(zip(columns, [1,2,3,4])), dict(zip(columns, [img,25,x,check]))]
     
     results = BaseDataTables(request, columns, collection).output_result()
     

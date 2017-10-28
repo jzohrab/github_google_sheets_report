@@ -1,4 +1,4 @@
-.PHONY: venv init test clean
+.PHONY: venv init test clean run
 
 # Sample call: make PYTHON=/usr/local/bin/python3 venv
 # Create virtual env with specific python
@@ -11,6 +11,9 @@ venv:
 
 init:
 	pip install -r requirements.txt
+
+run:
+	gunicorn myproject:app
 
 test:
 	nosetests tests
