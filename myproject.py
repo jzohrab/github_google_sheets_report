@@ -75,7 +75,9 @@ def get_server_data():
     img = "<img src='https://www.datatables.net/media/images/nav-dt.png' style='height:30px; width:30px'>"
     check = "<img src='/static/img/green_check.png' style='height:25px'>"
     x = "<img src='/static/img/red_x.png' style='height:15px'>"
-    collection = [dict(zip(columns, [1,2,3,4])), dict(zip(columns, [img,25,x,check]))]
+    bar = "<img src='/static/img/blue_box.png' style='height:15px; width:100px'>"
+    bar2 = "<img src='/static/img/blue_box.png' style='height:15px; width:200px'>"
+    collection = [dict(zip(columns, [1,bar2,3,4])), dict(zip(columns, [bar2,bar,x,check]))]
     
     results = BaseDataTables(request, columns, collection).output_result()
     
