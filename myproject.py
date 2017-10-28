@@ -40,10 +40,6 @@ class BaseDataTables:
     def output_result(self):
         
         output = {}
-
-        # output['sEcho'] = str(int(self.request_values['sEcho']))
-        # output['iTotalRecords'] = str(self.cardinality)
-        # output['iTotalDisplayRecords'] = str(self.cardinality_filtered)
         aaData_rows = []
         
         for row in self.result_data:
@@ -52,7 +48,10 @@ class BaseDataTables:
                 print row, self.columns, self.columns[i]
                 aaData_row.append(str(row[ self.columns[i] ]).replace('"','\\"'))
             aaData_rows.append(aaData_row)
-            
+
+        # By default DataTables will look for the property 'aaData'
+        # when obtaining data from an Ajax source or for server-side
+        # processing.
         output['aaData'] = aaData_rows
         
         return output
@@ -68,12 +67,12 @@ columns = [ 'column_1', 'column_2', 'column_3', 'column_4']
 @app.route('/')
 def index():
     return render_template('index.html', columns=columns)
-    return 'Hello World!'
+
 
 @app.route('/_server_data')
 def get_server_data():
     
-    collection = [dict(zip(columns, [1,2,3,4])), dict(zip(columns, [5,5,5,5]))]
+    collection = [dict(zip(columns, [1,2,3,4])), dict(zip(columns, [5,25,445,99995]))]
     
     results = BaseDataTables(request, columns, collection).output_result()
     
