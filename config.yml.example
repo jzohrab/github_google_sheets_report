@@ -1,16 +1,23 @@
 # Copy this file to your own config.yml and edit as needed.
 
-# Dir to check, relative to this program:
-:source_dir: ../klick-genome
+:master_branch: master
+:develop_branch: develop
 
-# Repo info:
-:origin_name: origin
-:master_branch: origin/master
+# We need a local clone to pull some information down
+# which could be expensive to compute from the API
+# only.
+:localclone:
 
-# Fetch/prune before analyzing?
-# (Set to false for a faster run)
-:do_fetch: false
-:do_prune: false
+  # Dir to check, relative to this program:
+  :source_dir: ../demo_gitflow
+
+  # Repo info:
+  :origin_name: origin
+
+  # Fetch/prune before analyzing?
+  # (Set to false for a faster run)
+  :do_fetch: false
+  :do_prune: false
 
 ## Use this to speed up run during development:
 :branches:
