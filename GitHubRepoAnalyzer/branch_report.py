@@ -8,10 +8,7 @@ config = None
 with open('config.yml', 'r') as f:
     config = yaml.load(f)
 
-print(config[':do_fetch'])
-
 dirname = config[':source_dir']
-print(dirname)
 if (not os.path.exists(dirname) or not os.path.isdir(dirname)):
     raise Exception('missing directory: ' + dirname)
 
