@@ -1,0 +1,5 @@
+PyYAML==3.12
+pytz
+nose
+sphinx
+pygsheets
