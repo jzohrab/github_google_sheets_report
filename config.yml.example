@@ -3,6 +3,14 @@
 :master_branch: master
 :develop_branch: develop
 
+# GitHub
+:github:
+
+  :api_endpoint: https://api.github.com
+  :org: jeff-zohrab
+  :repo: demo_gitflow
+
+
 # We need a local clone to pull some information down
 # which could be expensive to compute from the API
 # only.

@@ -4,6 +4,13 @@ import sys
 import datetime
 import pytz
 import os
+import yaml
+import subprocess
+
+
+config = None
+with open('config.yml', 'r') as f:
+    config = yaml.load(f)
 
 from requests.auth import HTTPBasicAuth
 
@@ -109,6 +116,7 @@ def print_data(s, j):
     print(s)
     print(json.dumps(j, indent=2, sort_keys=True))
     print('-------------------------------------')
+
 
 
 api_endpoint = 'https://api.github.com'
