@@ -137,5 +137,5 @@ if __name__ == '__main__':
     with open('config.yml', 'r') as f:
         config = yaml.load(f)
     dirname = config['localclone']['source_dir']
-    data = GitBranches(GitRepo(dirname)).load_data(config)
+    data = GitBranches(config, GitRepo(dirname)).load_data()
     print(json.dumps(data, indent=2, sort_keys=True))
