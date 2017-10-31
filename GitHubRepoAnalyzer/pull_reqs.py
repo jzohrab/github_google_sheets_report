@@ -6,12 +6,6 @@ import pytz
 import os
 import yaml
 import subprocess
-
-
-config = None
-with open('config.yml', 'r') as f:
-    config = yaml.load(f)
-
 from requests.auth import HTTPBasicAuth
 
 
@@ -23,7 +17,7 @@ if (token is None or token.strip() == ''):
 
 def get_json(url, params = None):
     """Gets data from the URL, and writes it to a file for subsequent use."""
-    filename = url.replace(api_endpoint, '').replace('/', '_')
+    filename = url.translate({ord(c):'_' for c in "/:."})
     currdir = os.path.dirname(os.path.abspath(__file__))
     cachedir = os.path.join(currdir, 'test_json')
     if not os.path.exists(cachedir):
@@ -53,7 +47,7 @@ https://stackoverflow.com/questions/18795713/parse-and-format-the-date-from-the-
     return toronto_d.strftime('%c')
 
 
-def get_pr(number):
+def get_pr(base_url, number):
     def simplify(pr):
         return {
             'branch': pr['head']['ref'],
@@ -70,7 +64,7 @@ def get_pr(number):
 
     pr['status'] = get_last_status(raw_pr['statuses_url'])
 
-    reviews = get_reviews(number)
+    reviews = get_reviews(base_url, number)
     approved = [r['user'] for r in reviews if r['state'] == 'APPROVED']
     declined = [r['user'] for r in reviews if r['state'] == 'CHANGES_REQUESTED']
     pr['approved'] = approved
@@ -102,7 +96,7 @@ def get_last_status(url):
     newlist = sorted(statuses, key=lambda k: k['updated_at'], reverse = True)
     return newlist[0]['state']
 
-def get_reviews(n):
+def get_reviews(base_url, n):
     def simplify(review):
         return {
             'user': review['user']['login'],
@@ -118,25 +112,31 @@ def print_data(s, j):
     print('-------------------------------------')
 
 
+def load_data(config):
+    api_endpoint = 'https://api.github.com'
+    org = 'jeff-zohrab'
+    repo = 'demo_gitflow'
+    base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
+    base_branch = 'develop'
+    pr_params = {
+        'state': 'open',
+        'base': base_branch  # if None, returns all PRs
+        }
+    
+    url = "{base_url}/pulls".format(base_url=base_url)
+    all_pulls = get_json(url, params=pr_params)
+    pr_numbers = [pr['number'] for pr in all_pulls]
+    
+    # GitHub API doesn't return merge status in the regular "pulls" query;
+    # have to first get the list of PRs and then get each PR individually.
+    prs = [get_pr(base_url, n) for n in pr_numbers]
+    return prs
 
-api_endpoint = 'https://api.github.com'
-org = 'jeff-zohrab'
-repo = 'demo_gitflow'
-base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
-base_branch = 'develop'
-pr_params = {
-    'state': 'open',
-    'base': base_branch  # if None, returns all PRs
-    }
 
-url = "{base_url}/pulls".format(base_url=base_url)
-all_pulls = get_json(url, params=pr_params)
-pr_numbers = [pr['number'] for pr in all_pulls]
-
-# GitHub API doesn't return merge status in the regular "pulls" query;
-# have to first get the list of PRs and then get each PR individually.
-prs = [get_pr(n) for n in pr_numbers]
-
-
-print_data('after_add', prs)
+if __name__ == '__main__':
+    config = None
+    with open('config.yml', 'r') as f:
+        config = yaml.load(f)
+    
+    print_data('after_add', load_data(config))
 
