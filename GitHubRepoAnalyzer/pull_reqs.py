@@ -105,12 +105,6 @@ def get_reviews(base_url, n):
     url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=n)
     return [simplify(r) for r in get_json(url)]
 
-def print_data(s, j):
-    print('-------------------------------------')
-    print(s)
-    print(json.dumps(j, indent=2, sort_keys=True))
-    print('-------------------------------------')
-
 
 def load_data(config):
     c = config[':github']
@@ -138,6 +132,7 @@ if __name__ == '__main__':
     config = None
     with open('config.yml', 'r') as f:
         config = yaml.load(f)
-    
-    print_data('after_add', load_data(config))
+
+    print(json.dumps(load_data(config), indent=2, sort_keys=True))
+
 
