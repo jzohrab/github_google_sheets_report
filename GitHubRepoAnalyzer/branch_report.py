@@ -7,10 +7,6 @@ import subprocess
 import json
 import sys
 
-config = None
-with open('config.yml', 'r') as f:
-    config = yaml.load(f)
-
 
 class GitRepo:
     """Wrapper to allow for dependency injection."""
@@ -44,92 +40,102 @@ class GitRepo:
         return [line for line in rawdata.split("\n") if line.strip() != '']
 
 
-def clean_author_name(s):
-    """Semi-standardize author names where possible.
-    e.g., my sample data had 'first-last' and
-    'First Last'.  Convert both of these to 'flast'"""
-    ret = s
-    if ',' in s:
-        (last, first) = s.split(',', 1)
-        ret = "{f}{last}".format(f = first[0], last = last)
-    if ' ' in s:
-        (first, last) = s.split(' ', 1)
-        ret = "{f}{last}".format(f = first[0], last = last)
-    if '-' in s:
-        (first, last) = s.split('-', 1)
-        ret = "{f}{last}".format(f = first[0], last = last)
-    return ret.lower()
+class GitBranches:
+    """Extracts and aggregates Git branch data for a high-level overview."""
 
-def get_commits(git, from_branch, to_branch):
-    cmd = "git log --date=short --format=\"%cd %an\" {m}..{b}"
-    cmd = cmd.format(m=from_branch, b=to_branch)
-    return git.get_git_cmd_response(cmd)
-
-def get_branch_data(git, reference_branch, branch_name, origin):
-    commits_ahead = get_commits(git, reference_branch, branch_name)
-    # print(commits_ahead)
-
-    num_commits_ahead = len(commits_ahead)
-    latest_commit = None
-    authors = None
-    if num_commits_ahead > 0:
-        latest_commit = max([c.split()[0] for c in commits_ahead])
-        authors = list(set(
-            [clean_author_name(c.split(' ', 1)[1]) for c in commits_ahead]
-        ))
-  
-    # Expensive ... add if desired.
-    # approx_diff_linecount =
-    # `git diff #{master}...#{branch_name} | grep ^[+-] | wc -l`.strip
-
-    return {
-        'branch_name': branch_name.replace("{o}/".format(o=origin), ''),
-        'ahead': num_commits_ahead,
-        'behind': len(get_commits(git, branch_name, reference_branch)),
-        'latest_commit_date': latest_commit,
-        'authors': authors
-        }
-
-
-def load_data(config):
-    dirname = config[':localclone'][':source_dir']
-    if (not os.path.exists(dirname) or not os.path.isdir(dirname)):
-        raise Exception('missing directory: ' + dirname)
-    git = GitRepo(dirname)
-
-    origin = config[':localclone'][':origin_name']
-
-    if (config[':localclone'][':do_fetch']):
-        print("Fetching ...")
-        cmd = "git fetch {origin}".format(origin = origin)
-        git.get_git_cmd_response(cmd)
-    if (config[':localclone'][':do_prune']):
-        print("Pruning ...")
-        cmd = "git remote prune {origin}".format(origin = origin)
-        git.get_git_cmd_response(cmd)
+    def __init__(self, git_repo):
+        self.git = git_repo
     
-    branches = []
-    if (':branches' in config):
-        branches = config[':branches']
-    else:
-        cmd = 'git branch -r'
-        rawdata = git.get_git_cmd_response(cmd)
-        # result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
-        # rawdata = result.stdout.decode().split("\n")
-        branches = [b.strip() for b in rawdata
-                    if "HEAD" not in b and b != '' and b.strip().startswith(origin)]
+    def clean_author_name(self, s):
+        """Semi-standardize author names where possible.
+        e.g., my sample data had 'first-last' and
+        'First Last'.  Convert both of these to 'flast'"""
+        ret = s
+        if ',' in s:
+            (last, first) = s.split(',', 1)
+            ret = "{f}{last}".format(f = first[0], last = last)
+        if ' ' in s:
+            (first, last) = s.split(' ', 1)
+            ret = "{f}{last}".format(f = first[0], last = last)
+        if '-' in s:
+            (first, last) = s.split('-', 1)
+            ret = "{f}{last}".format(f = first[0], last = last)
+        return ret.lower()
     
-    reference_branch = "{origin}/{branch}".format(
-        origin=origin,
-        branch=config[':develop_branch']
-    )
+    def get_commits(self, from_branch, to_branch):
+        cmd = "git log --date=short --format=\"%cd %an\" {m}..{b}"
+        cmd = cmd.format(m=from_branch, b=to_branch)
+        return self.git.get_git_cmd_response(cmd)
     
-    branches = [b for b in branches if b != reference_branch]
-    # print(branches)
+    def get_branch_data(self, reference_branch, branch_name, origin):
+        commits_ahead = self.get_commits(reference_branch, branch_name)
+        # print(commits_ahead)
     
-    data = [get_branch_data(git, reference_branch, b, origin) for b in branches]
-    return data
+        num_commits_ahead = len(commits_ahead)
+        latest_commit = None
+        authors = None
+        if num_commits_ahead > 0:
+            latest_commit = max([c.split()[0] for c in commits_ahead])
+            authors = list(set(
+                [self.clean_author_name(c.split(' ', 1)[1]) for c in commits_ahead]
+            ))
+      
+        # Expensive ... add if desired.
+        # approx_diff_linecount =
+        # `git diff #{master}...#{branch_name} | grep ^[+-] | wc -l`.strip
+    
+        return {
+            'branch_name': branch_name.replace("{o}/".format(o=origin), ''),
+            'ahead': num_commits_ahead,
+            'behind': len(self.get_commits(branch_name, reference_branch)),
+            'latest_commit_date': latest_commit,
+            'authors': authors
+            }
+    
+    
+    def load_data(self, config):
+        dirname = config[':localclone'][':source_dir']
+        if (not os.path.exists(dirname) or not os.path.isdir(dirname)):
+            raise Exception('missing directory: ' + dirname)
+    
+        origin = config[':localclone'][':origin_name']
+    
+        if (config[':localclone'][':do_fetch']):
+            print("Fetching ...")
+            cmd = "git fetch {origin}".format(origin = origin)
+            self.git.get_git_cmd_response(cmd)
+        if (config[':localclone'][':do_prune']):
+            print("Pruning ...")
+            cmd = "git remote prune {origin}".format(origin = origin)
+            self.git.get_git_cmd_response(cmd)
+        
+        branches = []
+        if (':branches' in config):
+            branches = config[':branches']
+        else:
+            cmd = 'git branch -r'
+            rawdata = self.git.get_git_cmd_response(cmd)
+            # result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+            # rawdata = result.stdout.decode().split("\n")
+            branches = [b.strip() for b in rawdata
+                        if "HEAD" not in b and b != '' and b.strip().startswith(origin)]
+        
+        reference_branch = "{origin}/{branch}".format(
+            origin=origin,
+            branch=config[':develop_branch']
+        )
+        
+        branches = [b for b in branches if b != reference_branch]
+        # print(branches)
+        
+        data = [self.get_branch_data(reference_branch, b, origin) for b in branches]
+        return data
 
 
 if __name__ == '__main__':
-    print(json.dumps(load_data(config), indent=2, sort_keys=True))
+    config = None
+    with open('config.yml', 'r') as f:
+        config = yaml.load(f)
+    dirname = config[':localclone'][':source_dir']
+    data = GitBranches(GitRepo(dirname)).load_data(config)
+    print(json.dumps(data, indent=2, sort_keys=True))
