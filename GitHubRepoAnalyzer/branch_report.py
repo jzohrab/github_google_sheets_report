@@ -102,4 +102,6 @@ def load_data(config):
     data = [get_branch_data(reference_branch, b, origin) for b in branches]
     return data
 
-print_data('branches', load_data(config))
+
+if __name__ == '__main__':
+    print_data('branches', load_data(config))
