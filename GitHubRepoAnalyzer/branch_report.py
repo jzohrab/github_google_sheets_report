@@ -3,6 +3,7 @@
 import yaml
 import os
 import subprocess
+import json
 
 config = None
 with open('config.yml', 'r') as f:
@@ -39,7 +40,7 @@ reference_branch = "{origin}/{branch}".format(
 )
 
 branches = [b for b in branches if b != reference_branch]
-print(branches)
+# print(branches)
 
 def clean_author_name(s):
     """Semi-standardize author names where possible.
@@ -89,5 +90,12 @@ def get_branch_data(reference_branch, branch_name):
         'authors': authors
         }
 
+def print_data(s, j):
+    print('-------------------------------------')
+    print(s)
+    print(json.dumps(j, indent=2, sort_keys=True))
+    print('-------------------------------------')
+
+
 data = [get_branch_data(reference_branch, b) for b in branches]
-print(data)
+print_data('branches', data)
