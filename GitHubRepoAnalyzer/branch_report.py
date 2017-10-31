@@ -15,28 +15,27 @@ class GitRepo:
             raise Exception('missing directory: ' + directory)
         self.directory = directory
 
-    def get_git_cmd_response(self, cmd):
-        """Gets response data from the cmd, and writes it to a file for subsequent use."""
+    def _hack_write_file(self, cmd, data):
+        """Writes the json returned from the cmd to a file.
+        Hack, this is not used, but could be used for
+        caching, or to regenerate test cases."""
         filename = cmd.translate({ord(c):'_' for c in "/:. \"%=-"})
-        currdir = os.getcwd()
-        cachedir = os.path.join(currdir, 'test_git')
+        currdir = os.path.dirname(os.path.abspath(__file__))
+        cachedir = os.path.join(currdir, 'test_json')
         if not os.path.exists(cachedir):
             os.makedirs(cachedir)
-        cachefile = os.path.join(cachedir, filename)
+        f = os.path.join(cachedir, filename)
+        with open(f, 'wt') as out:
+            out.dump(data)
 
+    def get_git_cmd_response(self, cmd):
+        """Gets response data from the cmd, and writes it to a file for subsequent use."""
         currdir = os.getcwd()
         os.chdir(self.directory)
         result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
         os.chdir(currdir)
         rawdata = result.stdout.decode()
-    
-        if (os.path.exists(cachefile)):
-            with open(cachefile, 'r') as f:
-                result = f.read()
-        else:
-            with open(cachefile, 'wt') as out:
-                out.write(rawdata)
-    
+        # self._hack_write_file(cmd, rawdata)
         return [line for line in rawdata.split("\n") if line.strip() != '']
 
 
