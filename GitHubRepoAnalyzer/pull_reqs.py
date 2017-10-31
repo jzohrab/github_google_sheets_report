@@ -38,94 +38,98 @@ def get_json(url, params = None):
     return ret
 
 
-def github_datetime_to_date(s):
-    """Extracts date from GitHub date, per
-https://stackoverflow.com/questions/18795713/parse-and-format-the-date-from-the-github-api-in-python"""
-    toronto = pytz.timezone('America/Toronto')
-    d = pytz.utc.localize(datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
-    toronto_d = d.astimezone(toronto)
-    return toronto_d.strftime('%c')
-
-
-def get_pr(base_url, number):
-    def simplify(pr):
-        return {
-            'branch': pr['head']['ref'],
-            'number': pr['number'],
-            'url': pr['html_url'],
-            'title': pr['title'],
-            'user': pr['user']['login'],
-            'updated_at': github_datetime_to_date(pr['updated_at']),
-            'mergeable': pr['mergeable']
-        }
-    url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
-    raw_pr = get_json(url)
-    pr = simplify(raw_pr)
-
-    pr['status'] = get_last_status(raw_pr['statuses_url'])
-
-    reviews = get_reviews(base_url, number)
-    approved = [r['user'] for r in reviews if r['state'] == 'APPROVED']
-    declined = [r['user'] for r in reviews if r['state'] == 'CHANGES_REQUESTED']
-    pr['approved'] = approved
-    pr['declined'] = declined
-
-    return pr
-
-def get_last_status(url):
-    """Get the last clear success or error status."""
-    def simplify(status):
-        return {
-            'context': status['context'],
-            'state': status['state'],
-            'description': status['description'],
-            'updated_at': github_datetime_to_date(status['updated_at'])
-        }
-    aborted_msg = 'The build of this commit was aborted'
-    jenkins_context = 'continuous-integration/jenkins/branch'
-    statuses = [
-        simplify(s)
-        for s in get_json(url)
-        if ( s['context'] == jenkins_context and
-             s['state'] != 'pending' and
-             s['description'] != aborted_msg
-         )
-    ]
-    if len(statuses) == 0:
-        return None
-    newlist = sorted(statuses, key=lambda k: k['updated_at'], reverse = True)
-    return newlist[0]['state']
-
-def get_reviews(base_url, n):
-    def simplify(review):
-        return {
-            'user': review['user']['login'],
-            'state': review['state']
-        }
-    url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=n)
-    return [simplify(r) for r in get_json(url)]
-
-
-def load_data(config):
-    c = config[':github']
-    api_endpoint = c[':api_endpoint']
-    org = c[':org']
-    repo = c[':repo']
-    base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
-    base_branch = config[':develop_branch']
-    pr_params = {
-        'state': 'open',
-        'base': base_branch
-        }
+class GitHubPullRequests:
+    """Extracts and aggregates GitHub pull requests for a high-level overview."""
     
-    url = "{base_url}/pulls".format(base_url=base_url)
-    all_pulls = get_json(url, params=pr_params)
-    pr_numbers = [pr['number'] for pr in all_pulls]
+    def github_datetime_to_date(self, s):
+        """Extracts date from GitHub date, per
+        https://stackoverflow.com/questions/18795713/ \
+          parse-and-format-the-date-from-the-github-api-in-python"""
+        toronto = pytz.timezone('America/Toronto')
+        d = pytz.utc.localize(datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
+        toronto_d = d.astimezone(toronto)
+        return toronto_d.strftime('%c')
     
-    # GitHub API doesn't return merge status in the regular "pulls" query;
-    # have to first get the list of PRs and then get each PR individually.
-    prs = [get_pr(base_url, n) for n in pr_numbers]
-    return prs
+    
+    def get_pr(self, base_url, number):
+        def simplify(pr):
+            return {
+                'branch': pr['head']['ref'],
+                'number': pr['number'],
+                'url': pr['html_url'],
+                'title': pr['title'],
+                'user': pr['user']['login'],
+                'updated_at': self.github_datetime_to_date(pr['updated_at']),
+                'mergeable': pr['mergeable']
+            }
+        url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
+        raw_pr = get_json(url)
+        pr = simplify(raw_pr)
+    
+        pr['status'] = self.get_last_status(raw_pr['statuses_url'])
+    
+        reviews = self.get_reviews(base_url, number)
+        approved = [r['user'] for r in reviews if r['state'] == 'APPROVED']
+        declined = [r['user'] for r in reviews if r['state'] == 'CHANGES_REQUESTED']
+        pr['approved'] = approved
+        pr['declined'] = declined
+    
+        return pr
+    
+    def get_last_status(self, url):
+        """Get the last clear success or error status."""
+        def simplify(status):
+            return {
+                'context': status['context'],
+                'state': status['state'],
+                'description': status['description'],
+                'updated_at': self.github_datetime_to_date(status['updated_at'])
+            }
+        aborted_msg = 'The build of this commit was aborted'
+        jenkins_context = 'continuous-integration/jenkins/branch'
+        statuses = [
+            simplify(s)
+            for s in get_json(url)
+            if ( s['context'] == jenkins_context and
+                 s['state'] != 'pending' and
+                 s['description'] != aborted_msg
+             )
+        ]
+        if len(statuses) == 0:
+            return None
+        newlist = sorted(statuses, key=lambda k: k['updated_at'], reverse = True)
+        return newlist[0]['state']
+    
+    def get_reviews(self, base_url, n):
+        def simplify(review):
+            return {
+                'user': review['user']['login'],
+                'state': review['state']
+            }
+        url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=n)
+        return [simplify(r) for r in get_json(url)]
+    
+    
+    def load_data(self, config):
+        c = config[':github']
+        api_endpoint = c[':api_endpoint']
+        org = c[':org']
+        repo = c[':repo']
+        base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
+        base_branch = config[':develop_branch']
+        pr_params = {
+            'state': 'open',
+            'base': base_branch
+            }
+        
+        url = "{base_url}/pulls".format(base_url=base_url)
+        all_pulls = get_json(url, params=pr_params)
+        pr_numbers = [pr['number'] for pr in all_pulls]
+        
+        # GitHub API doesn't return merge status in the regular "pulls" query;
+        # have to first get the list of PRs and then get each PR individually.
+        prs = [self.get_pr(base_url, n) for n in pr_numbers]
+        return prs
 
 
 if __name__ == '__main__':
@@ -133,6 +137,7 @@ if __name__ == '__main__':
     with open('config.yml', 'r') as f:
         config = yaml.load(f)
 
-    print(json.dumps(load_data(config), indent=2, sort_keys=True))
+    pr = GitHubPullRequests()
+    print(json.dumps(pr.load_data(config), indent=2, sort_keys=True))
 
 
