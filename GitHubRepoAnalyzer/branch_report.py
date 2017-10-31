@@ -57,12 +57,15 @@ def clean_author_name(s):
         ret = "{f}{last}".format(f = first[0], last = last)
     return ret.lower()
 
-def get_branch_data(reference_branch, branch_name):
+def get_commits(from_branch, to_branch):
     cmd = "git log --date=short --format=\"%cd %an\" {m}..{b}"
-    cmd = cmd.format(m=reference_branch, b=branch_name)
+    cmd = cmd.format(m=from_branch, b=to_branch)
     result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
     rawdata = result.stdout.decode().split("\n")
-    commits_ahead = [c for c in rawdata if c.strip() != '']
+    return [c for c in rawdata if c.strip() != '']
+
+def get_branch_data(reference_branch, branch_name):
+    commits_ahead = get_commits(reference_branch, branch_name)
     # print(commits_ahead)
 
     num_commits_ahead = len(commits_ahead)
@@ -81,6 +84,7 @@ def get_branch_data(reference_branch, branch_name):
     return {
         'branch_name': branch_name,
         'ahead': num_commits_ahead,
+        'behind': len(get_commits(branch_name, reference_branch)),
         'latest_commit_date': latest_commit,
         'authors': authors
         }
