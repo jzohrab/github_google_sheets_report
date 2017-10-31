@@ -9,39 +9,6 @@ config = None
 with open('config.yml', 'r') as f:
     config = yaml.load(f)
 
-dirname = config[':localclone'][':source_dir']
-if (not os.path.exists(dirname) or not os.path.isdir(dirname)):
-    raise Exception('missing directory: ' + dirname)
-
-os.chdir(dirname)
-
-cmd = "git fetch {origin}".format(origin = config[':localclone'][':origin_name'])
-if (config[':localclone'][':do_fetch']):
-    print("Fetching ...")
-    subprocess.run(cmd, shell=True)
-cmd = "git remote prune {origin}".format(origin = config[':localclone'][':origin_name'])
-if (config[':localclone'][':do_prune']):
-    print("Pruning ...")
-    subprocess.run(cmd, shell=True)
-
-branches = []
-if (':branches' in config):
-    branches = config[':branches']
-else:
-    cmd = 'git branch -r'
-    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
-    rawdata = result.stdout.decode().split("\n")
-    branches = [b.strip() for b in rawdata
-                if "HEAD" not in b and b != '']
-
-reference_branch = "{origin}/{branch}".format(
-    origin=config[':localclone'][':origin_name'],
-    branch=config[':develop_branch']
-)
-
-branches = [b for b in branches if b != reference_branch]
-# print(branches)
-
 def clean_author_name(s):
     """Semi-standardize author names where possible.
     e.g., my sample data had 'first-last' and
@@ -97,5 +64,41 @@ def print_data(s, j):
     print('-------------------------------------')
 
 
-data = [get_branch_data(reference_branch, b) for b in branches]
-print_data('branches', data)
+def load_data(config):
+    dirname = config[':localclone'][':source_dir']
+    if (not os.path.exists(dirname) or not os.path.isdir(dirname)):
+        raise Exception('missing directory: ' + dirname)
+    
+    os.chdir(dirname)
+    
+    cmd = "git fetch {origin}".format(origin = config[':localclone'][':origin_name'])
+    if (config[':localclone'][':do_fetch']):
+        print("Fetching ...")
+        subprocess.run(cmd, shell=True)
+    cmd = "git remote prune {origin}".format(origin = config[':localclone'][':origin_name'])
+    if (config[':localclone'][':do_prune']):
+        print("Pruning ...")
+        subprocess.run(cmd, shell=True)
+    
+    branches = []
+    if (':branches' in config):
+        branches = config[':branches']
+    else:
+        cmd = 'git branch -r'
+        result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+        rawdata = result.stdout.decode().split("\n")
+        branches = [b.strip() for b in rawdata
+                    if "HEAD" not in b and b != '']
+    
+    reference_branch = "{origin}/{branch}".format(
+        origin=config[':localclone'][':origin_name'],
+        branch=config[':develop_branch']
+    )
+    
+    branches = [b for b in branches if b != reference_branch]
+    # print(branches)
+    
+    data = [get_branch_data(reference_branch, b) for b in branches]
+    return data
+
+print_data('branches', load_data(config))
