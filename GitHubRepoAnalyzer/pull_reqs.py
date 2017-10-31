@@ -22,8 +22,10 @@ class GitHubApi:
         validate(token, 'token')
         self.token = token
 
-    def get_json(self, url, params = None):
-        """Gets data from the URL, and writes it to a file for subsequent use."""
+    def _hack_write_file(self, url, data):
+        """Writes the json returned from the URL to a file.
+        Hack, this is not used, but could be used for
+        caching, or to regenerate test cases."""
         filename = url.translate({ord(c):'_' for c in "/:."})
         currdir = os.path.dirname(os.path.abspath(__file__))
         cachedir = os.path.join(currdir, 'test_json')
@@ -31,17 +33,16 @@ class GitHubApi:
             os.makedirs(cachedir)
         cachefile = os.path.join(cachedir, filename)
     
-        ret = None
-        if (os.path.exists(cachefile)):
-            with open(cachefile, 'r') as f:
-                ret = json.load(f)
-        else:
-            myauth=HTTPBasicAuth(self.account, self.token)
-            resp = requests.get(url, auth = myauth, params = params)
-            ret = resp.json()
-            with open(cachefile, 'wt') as out:
-                json.dump(ret, out, sort_keys=True, indent=4, separators=(',', ': '))
-        
+        with open(cachefile, 'wt') as out:
+            json.dump(data, out, sort_keys=True, indent=4, separators=(',', ': '))
+
+
+    def get_json(self, url, params = None):
+        """Gets data from the URL, and writes it to a file for subsequent use."""
+        myauth=HTTPBasicAuth(self.account, self.token)
+        resp = requests.get(url, auth = myauth, params = params)
+        ret = resp.json()
+        # self._hack_write_file(url, ret)  # Disabling for now.
         return ret
 
 
