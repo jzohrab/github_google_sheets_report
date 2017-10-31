@@ -32,7 +32,7 @@ def get_commits(from_branch, to_branch):
     rawdata = result.stdout.decode().split("\n")
     return [c for c in rawdata if c.strip() != '']
 
-def get_branch_data(reference_branch, branch_name):
+def get_branch_data(reference_branch, branch_name, origin):
     commits_ahead = get_commits(reference_branch, branch_name)
     # print(commits_ahead)
 
@@ -50,7 +50,7 @@ def get_branch_data(reference_branch, branch_name):
     # `git diff #{master}...#{branch_name} | grep ^[+-] | wc -l`.strip
 
     return {
-        'branch_name': branch_name,
+        'branch_name': branch_name.replace("{o}/".format(o=origin), ''),
         'ahead': num_commits_ahead,
         'behind': len(get_commits(branch_name, reference_branch)),
         'latest_commit_date': latest_commit,
@@ -70,12 +70,13 @@ def load_data(config):
         raise Exception('missing directory: ' + dirname)
     
     os.chdir(dirname)
-    
-    cmd = "git fetch {origin}".format(origin = config[':localclone'][':origin_name'])
+
+    origin = config[':localclone'][':origin_name']
+    cmd = "git fetch {origin}".format(origin = origin)
     if (config[':localclone'][':do_fetch']):
         print("Fetching ...")
         subprocess.run(cmd, shell=True)
-    cmd = "git remote prune {origin}".format(origin = config[':localclone'][':origin_name'])
+    cmd = "git remote prune {origin}".format(origin = origin)
     if (config[':localclone'][':do_prune']):
         print("Pruning ...")
         subprocess.run(cmd, shell=True)
@@ -88,17 +89,17 @@ def load_data(config):
         result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
         rawdata = result.stdout.decode().split("\n")
         branches = [b.strip() for b in rawdata
-                    if "HEAD" not in b and b != '']
+                    if "HEAD" not in b and b != '' and b.strip().startswith(origin)]
     
     reference_branch = "{origin}/{branch}".format(
-        origin=config[':localclone'][':origin_name'],
+        origin=origin,
         branch=config[':develop_branch']
     )
     
     branches = [b for b in branches if b != reference_branch]
     # print(branches)
     
-    data = [get_branch_data(reference_branch, b) for b in branches]
+    data = [get_branch_data(reference_branch, b, origin) for b in branches]
     return data
 
 print_data('branches', load_data(config))
