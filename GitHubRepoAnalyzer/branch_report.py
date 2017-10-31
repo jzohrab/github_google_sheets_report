@@ -5,32 +5,43 @@ import os
 import inspect
 import subprocess
 import json
+import sys
 
 config = None
 with open('config.yml', 'r') as f:
     config = yaml.load(f)
 
-currdir = os.path.dirname(os.path.abspath(__file__))
 
-def get_git_cmd_response(cmd):
-    """Gets response data from the cmd, and writes it to a file for subsequent use."""
-    filename = cmd.translate({ord(c):'_' for c in "/:. \"%=-"})
-    cachedir = os.path.join(currdir, 'test_git')
-    if not os.path.exists(cachedir):
-        os.makedirs(cachedir)
-    cachefile = os.path.join(cachedir, filename)
+class GitRepo:
+    """Wrapper to allow for dependency injection."""
+    def __init__(self, directory):
+        if (not os.path.exists(directory) or not os.path.isdir(directory)):
+            raise Exception('missing directory: ' + directory)
+        self.directory = directory
 
-    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
-    rawdata = result.stdout.decode()
+    def get_git_cmd_response(self, cmd):
+        """Gets response data from the cmd, and writes it to a file for subsequent use."""
+        filename = cmd.translate({ord(c):'_' for c in "/:. \"%=-"})
+        currdir = os.getcwd()
+        cachedir = os.path.join(currdir, 'test_git')
+        if not os.path.exists(cachedir):
+            os.makedirs(cachedir)
+        cachefile = os.path.join(cachedir, filename)
 
-    if (os.path.exists(cachefile)):
-        with open(cachefile, 'r') as f:
-            result = f.read()
-    else:
-        with open(cachefile, 'wt') as out:
-            out.write(rawdata)
-
-    return [line for line in rawdata.split("\n") if line.strip() != '']
+        currdir = os.getcwd()
+        os.chdir(self.directory)
+        result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+        os.chdir(currdir)
+        rawdata = result.stdout.decode()
+    
+        if (os.path.exists(cachefile)):
+            with open(cachefile, 'r') as f:
+                result = f.read()
+        else:
+            with open(cachefile, 'wt') as out:
+                out.write(rawdata)
+    
+        return [line for line in rawdata.split("\n") if line.strip() != '']
 
 
 def clean_author_name(s):
@@ -49,13 +60,13 @@ def clean_author_name(s):
         ret = "{f}{last}".format(f = first[0], last = last)
     return ret.lower()
 
-def get_commits(from_branch, to_branch):
+def get_commits(git, from_branch, to_branch):
     cmd = "git log --date=short --format=\"%cd %an\" {m}..{b}"
     cmd = cmd.format(m=from_branch, b=to_branch)
-    return get_git_cmd_response(cmd)
+    return git.get_git_cmd_response(cmd)
 
-def get_branch_data(reference_branch, branch_name, origin):
-    commits_ahead = get_commits(reference_branch, branch_name)
+def get_branch_data(git, reference_branch, branch_name, origin):
+    commits_ahead = get_commits(git, reference_branch, branch_name)
     # print(commits_ahead)
 
     num_commits_ahead = len(commits_ahead)
@@ -74,7 +85,7 @@ def get_branch_data(reference_branch, branch_name, origin):
     return {
         'branch_name': branch_name.replace("{o}/".format(o=origin), ''),
         'ahead': num_commits_ahead,
-        'behind': len(get_commits(branch_name, reference_branch)),
+        'behind': len(get_commits(git, branch_name, reference_branch)),
         'latest_commit_date': latest_commit,
         'authors': authors
         }
@@ -84,26 +95,25 @@ def load_data(config):
     dirname = config[':localclone'][':source_dir']
     if (not os.path.exists(dirname) or not os.path.isdir(dirname)):
         raise Exception('missing directory: ' + dirname)
-    
-    os.chdir(dirname)
+    git = GitRepo(dirname)
 
     origin = config[':localclone'][':origin_name']
 
     if (config[':localclone'][':do_fetch']):
         print("Fetching ...")
         cmd = "git fetch {origin}".format(origin = origin)
-        get_git_cmd_response(cmd)
+        git.get_git_cmd_response(cmd)
     if (config[':localclone'][':do_prune']):
         print("Pruning ...")
         cmd = "git remote prune {origin}".format(origin = origin)
-        get_git_cmd_response(cmd)
+        git.get_git_cmd_response(cmd)
     
     branches = []
     if (':branches' in config):
         branches = config[':branches']
     else:
         cmd = 'git branch -r'
-        rawdata = get_git_cmd_response(cmd)
+        rawdata = git.get_git_cmd_response(cmd)
         # result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
         # rawdata = result.stdout.decode().split("\n")
         branches = [b.strip() for b in rawdata
@@ -117,7 +127,7 @@ def load_data(config):
     branches = [b for b in branches if b != reference_branch]
     # print(branches)
     
-    data = [get_branch_data(reference_branch, b, origin) for b in branches]
+    data = [get_branch_data(git, reference_branch, b, origin) for b in branches]
     return data
 
 
