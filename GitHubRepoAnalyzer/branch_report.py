@@ -79,12 +79,6 @@ def get_branch_data(reference_branch, branch_name, origin):
         'authors': authors
         }
 
-def print_data(s, j):
-    print('-------------------------------------')
-    print(s)
-    print(json.dumps(j, indent=2, sort_keys=True))
-    print('-------------------------------------')
-
 
 def load_data(config):
     dirname = config[':localclone'][':source_dir']
@@ -128,4 +122,4 @@ def load_data(config):
 
 
 if __name__ == '__main__':
-    print_data('branches', load_data(config))
+    print(json.dumps(load_data(config), indent=2, sort_keys=True))
