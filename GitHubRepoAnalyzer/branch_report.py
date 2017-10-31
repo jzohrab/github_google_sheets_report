@@ -2,12 +2,36 @@
 
 import yaml
 import os
+import inspect
 import subprocess
 import json
 
 config = None
 with open('config.yml', 'r') as f:
     config = yaml.load(f)
+
+currdir = os.path.dirname(os.path.abspath(__file__))
+
+def get_git_cmd_response(cmd):
+    """Gets response data from the cmd, and writes it to a file for subsequent use."""
+    filename = cmd.translate({ord(c):'_' for c in "/:. \"%=-"})
+    cachedir = os.path.join(currdir, 'test_git')
+    if not os.path.exists(cachedir):
+        os.makedirs(cachedir)
+    cachefile = os.path.join(cachedir, filename)
+
+    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+    rawdata = result.stdout.decode()
+
+    if (os.path.exists(cachefile)):
+        with open(cachefile, 'r') as f:
+            result = f.read()
+    else:
+        with open(cachefile, 'wt') as out:
+            out.write(rawdata)
+
+    return [line for line in rawdata.split("\n") if line.strip() != '']
+
 
 def clean_author_name(s):
     """Semi-standardize author names where possible.
@@ -28,9 +52,7 @@ def clean_author_name(s):
 def get_commits(from_branch, to_branch):
     cmd = "git log --date=short --format=\"%cd %an\" {m}..{b}"
     cmd = cmd.format(m=from_branch, b=to_branch)
-    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
-    rawdata = result.stdout.decode().split("\n")
-    return [c for c in rawdata if c.strip() != '']
+    return get_git_cmd_response(cmd)
 
 def get_branch_data(reference_branch, branch_name, origin):
     commits_ahead = get_commits(reference_branch, branch_name)
@@ -72,22 +94,24 @@ def load_data(config):
     os.chdir(dirname)
 
     origin = config[':localclone'][':origin_name']
-    cmd = "git fetch {origin}".format(origin = origin)
+
     if (config[':localclone'][':do_fetch']):
         print("Fetching ...")
-        subprocess.run(cmd, shell=True)
-    cmd = "git remote prune {origin}".format(origin = origin)
+        cmd = "git fetch {origin}".format(origin = origin)
+        get_git_cmd_response(cmd)
     if (config[':localclone'][':do_prune']):
         print("Pruning ...")
-        subprocess.run(cmd, shell=True)
+        cmd = "git remote prune {origin}".format(origin = origin)
+        get_git_cmd_response(cmd)
     
     branches = []
     if (':branches' in config):
         branches = config[':branches']
     else:
         cmd = 'git branch -r'
-        result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
-        rawdata = result.stdout.decode().split("\n")
+        rawdata = get_git_cmd_response(cmd)
+        # result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+        # rawdata = result.stdout.decode().split("\n")
         branches = [b.strip() for b in rawdata
                     if "HEAD" not in b and b != '' and b.strip().startswith(origin)]
     
