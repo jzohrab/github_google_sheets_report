@@ -1,0 +1,78 @@
+[
+  {
+    "approved": [],
+    "branch": "hotfix_other_branch",
+    "declined": [],
+    "mergeable": true,
+    "number": 9,
+    "status": null,
+    "title": "Hotfix",
+    "updated_at": "Thu Oct 26 22:27:39 2017",
+    "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/9",
+    "user": "jeff-zohrab"
+  },
+  {
+    "approved": [],
+    "branch": "feature/4_success_then_abort",
+    "declined": [],
+    "mergeable": true,
+    "number": 8,
+    "status": "success",
+    "title": "Passes.",
+    "updated_at": "Thu Oct 26 17:05:22 2017",
+    "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/8",
+    "user": "jeff-zohrab"
+  },
+  {
+    "approved": [
+      "jbarryqa"
+    ],
+    "branch": "feature/3_fail_then_success",
+    "declined": [],
+    "mergeable": true,
+    "number": 7,
+    "status": "success",
+    "title": "Feature/3 fail then success",
+    "updated_at": "Fri Oct 27 22:28:19 2017",
+    "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/7",
+    "user": "jeff-zohrab"
+  },
+  {
+    "approved": [],
+    "branch": "feature/2_success_then_fail",
+    "declined": [
+      "jbarryqa"
+    ],
+    "mergeable": true,
+    "number": 6,
+    "status": "error",
+    "title": "Feature/2 success then fail",
+    "updated_at": "Thu Oct 26 17:06:19 2017",
+    "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/6",
+    "user": "jeff-zohrab"
+  },
+  {
+    "approved": [],
+    "branch": "feature/1_success_only",
+    "declined": [],
+    "mergeable": true,
+    "number": 5,
+    "status": "success",
+    "title": "success",
+    "updated_at": "Thu Oct 26 16:28:25 2017",
+    "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/5",
+    "user": "jeff-zohrab"
+  },
+  {
+    "approved": [],
+    "branch": "feature/44",
+    "declined": [],
+    "mergeable": false,
+    "number": 4,
+    "status": "success",
+    "title": "44: 44",
+    "updated_at": "Fri Oct 20 15:00:00 2017",
+    "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/4",
+    "user": "jeff-zohrab"
+  }
+]

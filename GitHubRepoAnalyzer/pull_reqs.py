@@ -48,7 +48,8 @@ class GitHubApi:
 class GitHubPullRequests:
     """Extracts and aggregates GitHub pull requests for a high-level overview."""
 
-    def __init__(self, github_api):
+    def __init__(self, config, github_api):
+        self.config = config
         self.github_api = github_api
 
     def github_datetime_to_date(self, s):
@@ -120,13 +121,13 @@ class GitHubPullRequests:
         return [simplify(r) for r in self.github_api.get_json(url)]
     
     
-    def load_data(self, config):
-        c = config[':github']
-        api_endpoint = c[':api_endpoint']
-        org = c[':org']
-        repo = c[':repo']
+    def load_data(self):
+        c = self.config['github']
+        api_endpoint = c['api_endpoint']
+        org = c['org']
+        repo = c['repo']
         base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
-        base_branch = config[':develop_branch']
+        base_branch = self.config['develop_branch']
         pr_params = {
             'state': 'open',
             'base': base_branch
@@ -157,7 +158,6 @@ if __name__ == '__main__':
         sys.exit()
 
     api = GitHubApi(account, token)
-    pr = GitHubPullRequests(api)
-    print(json.dumps(pr.load_data(config), indent=2, sort_keys=True))
-
+    pr = GitHubPullRequests(config, api)
+    print(json.dumps(pr.load_data(), indent=2, sort_keys=True))
 

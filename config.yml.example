@@ -1,33 +1,25 @@
 # Copy this file to your own config.yml and edit as needed.
 
-:master_branch: master
-:develop_branch: develop
+master_branch: master
+develop_branch: develop
+
+## Use this to speed up run during development:
+# branches:
+#  - origin/1001520
+#  - origin/1005715
 
 # GitHub
-:github:
+github:
 
-  :api_endpoint: https://api.github.com
-  :org: jeff-zohrab
-  :repo: demo_gitflow
-
+  api_endpoint: https://api.github.com
+  org: jeff-zohrab
+  repo: demo_gitflow
 
 # We need a local clone to pull some information down
 # which could be expensive to compute from the API
 # only.
-:localclone:
-
-  # Dir to check, relative to this program:
-  :source_dir: ../demo_gitflow
-
-  # Repo info:
-  :origin_name: origin
-
-  # Fetch/prune before analyzing?
-  # (Set to false for a faster run)
-  :do_fetch: false
-  :do_prune: false
-
-## Use this to speed up run during development:
-:branches:
-  - origin/1001520
-  - origin/1005715
+localclone:
+  source_dir: ../demo_gitflow
+  origin_name: origin
+  do_fetch: false
+  do_prune: false

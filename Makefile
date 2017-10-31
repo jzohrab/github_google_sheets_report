@@ -1,6 +1,8 @@
 .PHONY: venv init test clean run
 
-# Sample call: make PYTHON=/usr/local/bin/python3 venv
+# Sample calls:
+#   make PYTHON=/usr/local/bin/python3 venv
+#   make PYTHON=`which python3` venv
 # Create virtual env with specific python
 # "--always-copy" added to work around Vagrant error for Windows,
 # "OSError: [Errno 71] Protocol error:" (ref
@@ -16,7 +18,7 @@ run:
 	gunicorn myproject:app
 
 test:
-	nosetests tests
+	python -m unittest tests/*.py
 
 clean:
 	rm -rf venv
