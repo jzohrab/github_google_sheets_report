@@ -9,38 +9,48 @@ import subprocess
 from requests.auth import HTTPBasicAuth
 
 
-token=os.environ['GITHUB_TOKEN']
-if (token is None or token.strip() == ''):
-    print("Missing GITHUB_TOKEN env variable")
-    sys.exit()
+class GitHubApi:
+    """Wrapper class to allow for dependency injection."""
 
+    def __init__(self, account, token):
+        def validate(var, name):
+            if (var is None or var.strip() == ''):
+                print("Missing {name}".format(name=name))
+                sys.exit()
+        validate(account, 'account')
+        self.account = account
+        validate(token, 'token')
+        self.token = token
 
-def get_json(url, params = None):
-    """Gets data from the URL, and writes it to a file for subsequent use."""
-    filename = url.translate({ord(c):'_' for c in "/:."})
-    currdir = os.path.dirname(os.path.abspath(__file__))
-    cachedir = os.path.join(currdir, 'test_json')
-    if not os.path.exists(cachedir):
-        os.makedirs(cachedir)
-    cachefile = os.path.join(cachedir, filename)
-
-    ret = None
-    if (os.path.exists(cachefile)):
-        with open(cachefile, 'r') as f:
-            ret = json.load(f)
-    else:
-        myauth=HTTPBasicAuth('jeff-zohrab', token)
-        resp = requests.get(url, auth = myauth, params = params)
-        ret = resp.json()
-        with open(cachefile, 'wt') as out:
-            json.dump(ret, out, sort_keys=True, indent=4, separators=(',', ': '))
+    def get_json(self, url, params = None):
+        """Gets data from the URL, and writes it to a file for subsequent use."""
+        filename = url.translate({ord(c):'_' for c in "/:."})
+        currdir = os.path.dirname(os.path.abspath(__file__))
+        cachedir = os.path.join(currdir, 'test_json')
+        if not os.path.exists(cachedir):
+            os.makedirs(cachedir)
+        cachefile = os.path.join(cachedir, filename)
     
-    return ret
+        ret = None
+        if (os.path.exists(cachefile)):
+            with open(cachefile, 'r') as f:
+                ret = json.load(f)
+        else:
+            myauth=HTTPBasicAuth(self.account, self.token)
+            resp = requests.get(url, auth = myauth, params = params)
+            ret = resp.json()
+            with open(cachefile, 'wt') as out:
+                json.dump(ret, out, sort_keys=True, indent=4, separators=(',', ': '))
+        
+        return ret
 
 
 class GitHubPullRequests:
     """Extracts and aggregates GitHub pull requests for a high-level overview."""
-    
+
+    def __init__(self, github_api):
+        self.github_api = github_api
+
     def github_datetime_to_date(self, s):
         """Extracts date from GitHub date, per
         https://stackoverflow.com/questions/18795713/ \
@@ -63,7 +73,7 @@ class GitHubPullRequests:
                 'mergeable': pr['mergeable']
             }
         url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
-        raw_pr = get_json(url)
+        raw_pr = self.github_api.get_json(url)
         pr = simplify(raw_pr)
     
         pr['status'] = self.get_last_status(raw_pr['statuses_url'])
@@ -89,7 +99,7 @@ class GitHubPullRequests:
         jenkins_context = 'continuous-integration/jenkins/branch'
         statuses = [
             simplify(s)
-            for s in get_json(url)
+            for s in self.github_api.get_json(url)
             if ( s['context'] == jenkins_context and
                  s['state'] != 'pending' and
                  s['description'] != aborted_msg
@@ -107,7 +117,7 @@ class GitHubPullRequests:
                 'state': review['state']
             }
         url = "{base_url}/pulls/{number}/reviews".format(base_url=base_url, number=n)
-        return [simplify(r) for r in get_json(url)]
+        return [simplify(r) for r in self.github_api.get_json(url)]
     
     
     def load_data(self, config):
@@ -123,7 +133,7 @@ class GitHubPullRequests:
             }
         
         url = "{base_url}/pulls".format(base_url=base_url)
-        all_pulls = get_json(url, params=pr_params)
+        all_pulls = self.github_api.get_json(url, params=pr_params)
         pr_numbers = [pr['number'] for pr in all_pulls]
         
         # GitHub API doesn't return merge status in the regular "pulls" query;
@@ -137,7 +147,17 @@ if __name__ == '__main__':
     with open('config.yml', 'r') as f:
         config = yaml.load(f)
 
-    pr = GitHubPullRequests()
+    token=os.environ['GITHUB_TOKEN']
+    account=os.environ['GITHUB_TOKEN_ACCOUNT']
+    if (token is None or token.strip() == ''):
+        print("Missing GITHUB_TOKEN env variable")
+        sys.exit()
+    if (account is None or account.strip() == ''):
+        print("Missing GITHUB_TOKEN_ACCOUNT env variable")
+        sys.exit()
+
+    api = GitHubApi(account, token)
+    pr = GitHubPullRequests(api)
     print(json.dumps(pr.load_data(config), indent=2, sort_keys=True))
 
 
