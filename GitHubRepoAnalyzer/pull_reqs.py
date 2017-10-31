@@ -113,14 +113,15 @@ def print_data(s, j):
 
 
 def load_data(config):
-    api_endpoint = 'https://api.github.com'
-    org = 'jeff-zohrab'
-    repo = 'demo_gitflow'
+    c = config[':github']
+    api_endpoint = c[':api_endpoint']
+    org = c[':org']
+    repo = c[':repo']
     base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
-    base_branch = 'develop'
+    base_branch = config[':develop_branch']
     pr_params = {
         'state': 'open',
-        'base': base_branch  # if None, returns all PRs
+        'base': base_branch
         }
     
     url = "{base_url}/pulls".format(base_url=base_url)
