@@ -43,7 +43,8 @@ class GitRepo:
 class GitBranches:
     """Extracts and aggregates Git branch data for a high-level overview."""
 
-    def __init__(self, git_repo):
+    def __init__(self, config, git_repo):
+        self.config = config
         self.git = git_repo
     
     def clean_author_name(self, s):
@@ -93,25 +94,25 @@ class GitBranches:
             }
     
     
-    def load_data(self, config):
-        dirname = config[':localclone'][':source_dir']
+    def load_data(self):
+        dirname = self.config['localclone']['source_dir']
         if (not os.path.exists(dirname) or not os.path.isdir(dirname)):
             raise Exception('missing directory: ' + dirname)
     
-        origin = config[':localclone'][':origin_name']
+        origin = self.config['localclone']['origin_name']
     
-        if (config[':localclone'][':do_fetch']):
+        if (self.config['localclone']['do_fetch']):
             print("Fetching ...")
             cmd = "git fetch {origin}".format(origin = origin)
             self.git.get_git_cmd_response(cmd)
-        if (config[':localclone'][':do_prune']):
+        if (self.config['localclone']['do_prune']):
             print("Pruning ...")
             cmd = "git remote prune {origin}".format(origin = origin)
             self.git.get_git_cmd_response(cmd)
         
         branches = []
-        if (':branches' in config):
-            branches = config[':branches']
+        if ('branches' in self.config):
+            branches = self.config['branches']
         else:
             cmd = 'git branch -r'
             rawdata = self.git.get_git_cmd_response(cmd)
@@ -122,7 +123,7 @@ class GitBranches:
         
         reference_branch = "{origin}/{branch}".format(
             origin=origin,
-            branch=config[':develop_branch']
+            branch=self.config['develop_branch']
         )
         
         branches = [b for b in branches if b != reference_branch]
@@ -136,6 +137,6 @@ if __name__ == '__main__':
     config = None
     with open('config.yml', 'r') as f:
         config = yaml.load(f)
-    dirname = config[':localclone'][':source_dir']
+    dirname = config['localclone']['source_dir']
     data = GitBranches(GitRepo(dirname)).load_data(config)
     print(json.dumps(data, indent=2, sort_keys=True))

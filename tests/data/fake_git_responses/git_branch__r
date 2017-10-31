@@ -1,0 +1,9 @@
+  origin/HEAD -> origin/master
+  origin/develop
+  origin/feature/1_success_only
+  origin/feature/2_success_then_fail
+  origin/feature/3_fail_then_success
+  origin/feature/44
+  origin/feature/4_success_then_abort
+  origin/hotfix_other_branch
+  origin/master

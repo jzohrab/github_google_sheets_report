@@ -1,0 +1,63 @@
+[
+  {
+    "ahead": 1,
+    "authors": [
+      "jzohrab"
+    ],
+    "behind": 0,
+    "branch_name": "feature/1_success_only",
+    "latest_commit_date": "2017-10-26"
+  },
+  {
+    "ahead": 2,
+    "authors": [
+      "jzohrab"
+    ],
+    "behind": 0,
+    "branch_name": "feature/2_success_then_fail",
+    "latest_commit_date": "2017-10-26"
+  },
+  {
+    "ahead": 2,
+    "authors": [
+      "jzohrab"
+    ],
+    "behind": 0,
+    "branch_name": "feature/3_fail_then_success",
+    "latest_commit_date": "2017-10-26"
+  },
+  {
+    "ahead": 1,
+    "authors": [
+      "jzohrab"
+    ],
+    "behind": 3,
+    "branch_name": "feature/44",
+    "latest_commit_date": "2017-10-20"
+  },
+  {
+    "ahead": 1,
+    "authors": [
+      "jzohrab"
+    ],
+    "behind": 0,
+    "branch_name": "feature/4_success_then_abort",
+    "latest_commit_date": "2017-10-26"
+  },
+  {
+    "ahead": 1,
+    "authors": [
+      "jzohrab"
+    ],
+    "behind": 0,
+    "branch_name": "hotfix_other_branch",
+    "latest_commit_date": "2017-10-26"
+  },
+  {
+    "ahead": 0,
+    "authors": null,
+    "behind": 4,
+    "branch_name": "master",
+    "latest_commit_date": null
+  }
+]
