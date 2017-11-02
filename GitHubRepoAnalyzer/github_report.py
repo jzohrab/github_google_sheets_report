@@ -1,5 +1,5 @@
-from branch_report import GitBranches, GitRepo
-from pull_reqs import GitHubApi, GitHubPullRequests
+from .branch_report import GitBranches, GitRepo
+from .pull_reqs import GitHubApi, GitHubPullRequests
 import yaml
 import json
 import os
