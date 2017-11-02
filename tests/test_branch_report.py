@@ -4,33 +4,13 @@
 from .context import GitHubRepoAnalyzer
 from GitHubRepoAnalyzer import branch_report
 
+from .fakes import FakeGitRepo
+
 import unittest
 import os
 import json
 import yaml
 
-class FakeGitRepo:
-    """Fake class implementing the GitHubApi API"""
-    def get_git_cmd_response(self, cmd):
-        currdir = os.path.dirname(os.path.abspath(__file__))
-        cachedir = os.path.join(currdir, 'data', 'fake_git_responses')
-        filename = cmd.translate({ord(c):'_' for c in "/:. \"%=-"})
-        data = os.path.join(cachedir, filename)
-        with open(data, 'r') as f:
-            rawdata = f.read()
-        return [line for line in rawdata.split("\n") if line.strip() != '']
-
-class FakeGitRepo_SanityChecks(unittest.TestCase):
-
-    def setUp(self):
-        self.fake_repo = FakeGitRepo()
-
-    def test_fake(self):
-        """Testing the fake class!"""
-        cmd = "git log --date=short --format=\"%cd %an\" origin/develop..origin/feature_1_success_only"
-        data = self.fake_repo.get_git_cmd_response(cmd)
-        self.assertTrue(True)  # Sanity check only.
-        
 
 class GitBranchesTestSuite(unittest.TestCase):
     """Basic test cases."""
