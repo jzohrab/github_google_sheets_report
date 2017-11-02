@@ -21,4 +21,4 @@ test:
 	python -m unittest tests/*.py
 
 clean:
-	rm -rf venv
+	find . -name '*.pyc' -print0 | xargs -0 rm
