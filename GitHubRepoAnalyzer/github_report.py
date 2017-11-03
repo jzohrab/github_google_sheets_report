@@ -4,6 +4,7 @@ import yaml
 import json
 import os
 import datetime
+import pytz
 import pandas
 
 class TimeUtils:
@@ -37,13 +38,12 @@ class TimeUtils:
 
 
 class GitHubReport:
-    def __init__(self, config, git_repo, github_api, reference_date = datetime.datetime.now):
+    def __init__(self, config, git_repo, github_api, reference_date):
         self.config = config
         self.git_repo = git_repo
         self.github_api = github_api
         self.reference_date = reference_date
 
-        
     def github_datetime_to_date(self, s):
         """Extracts date from GitHub date, per
         https://stackoverflow.com/questions/18795713/ \
@@ -52,9 +52,23 @@ class GitHubReport:
         d = pytz.utc.localize(datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
         return d.astimezone(toronto)
 
+    def github_days_ago(self, s):
+        if s is None:
+            return None
+        d = self.github_datetime_to_date(s)
+        return TimeUtils.human_elapsed_time(self.reference_date, d)
+
     def git_date_to_date(self, s):
-        return datetime.datetime.strptime(s, "%Y-%m-%d")
-    
+        d = datetime.datetime.strptime(s, "%Y-%m-%d")
+        toronto = pytz.timezone('America/Toronto')
+        return pytz.utc.localize(d)
+
+    def git_days_ago(self, s):
+        if s is None:
+            return None
+        d = self.git_date_to_date(s)
+        return TimeUtils.human_elapsed_time(self.reference_date, d)
+        
     def build_report(self):
         git_branches = GitBranches(self.config, self.git_repo).load_data()
         prs = GitHubPullRequests(self.config, self.github_api).load_data()
@@ -116,6 +130,7 @@ class GitHubReport:
         for f in ['authors']:
             branch_df[f + '_concat'] = list(map(lambda s: ', '.join(s), branch_df[f]))
             branch_df[f + '_count'] = list(map(lambda s: len(s), branch_df[f]))
+        branch_df['commit_days_ago'] = list(map(lambda d: self.git_days_ago(d), branch_df['latest_commit_date']))
 
         prs = GitHubPullRequests(self.config, self.github_api).load_data()
         pr_columns = [
@@ -139,6 +154,7 @@ class GitHubReport:
         for f in ['approved', 'declined']:
             pr_df[f + '_concat'] = list(map(lambda s: ', '.join(s), pr_df[f]))
             pr_df[f + '_count'] = list(map(lambda s: len(s), pr_df[f]))
+        pr_df['github_days_ago'] = list(map(lambda d: self.github_days_ago(d), pr_df['updated_at']))
 
         data = pandas.merge(branch_df, pr_df, how='left', left_on=['branch'], right_on=['branch'])
         data.fillna(value='', inplace=True)

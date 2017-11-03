@@ -12,6 +12,7 @@ import os
 import json
 import yaml
 import datetime
+import pytz
 
 class TimeUtilsTestSuite(unittest.TestCase):
     def setUp(self):
@@ -65,8 +66,12 @@ class GitHubReportTestSuite(unittest.TestCase):
         config_file = os.path.join(currdir, 'fake_config.yml')
         with open(config_file, 'r') as f:
             config = yaml.load(f)
-        
-        self.ghr = github_report.GitHubReport(config, fake_repo, fake_api)
+
+        reference_date = datetime.datetime.strptime('2017-10-29', "%Y-%m-%d")
+        toronto = pytz.timezone('America/Toronto')
+        reference_date = pytz.utc.localize(reference_date)
+
+        self.ghr = gr.GitHubReport(config, fake_repo, fake_api, reference_date)
         self.maxDiff = None
 
     def zzz_test_data_is_processed(self):
@@ -87,7 +92,7 @@ class GitHubReportTestSuite(unittest.TestCase):
         df = self.ghr.build_dataframe()
         # print(df)
 
-    def zzz_test_pandas_2(self):
+    def test_pandas_2(self):
         df = self.ghr.build_dataframe_v2()
         print(df)
 
