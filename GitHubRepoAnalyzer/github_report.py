@@ -3,6 +3,7 @@ from .pull_reqs import GitHubApi, GitHubPullRequests
 import yaml
 import json
 import os
+import pandas
 
 class GitHubReport:
     def __init__(self, config, git_repo, github_api):
@@ -39,6 +40,9 @@ class GitHubReport:
             return d
         data = list(map(final_data, data))
         return data
+
+    def build_dataframe(self):
+        return pandas.DataFrame(self.build_report())
 
 def build_report():
     def get_valid_env_var(name):

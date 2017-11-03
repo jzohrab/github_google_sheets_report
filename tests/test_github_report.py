@@ -42,6 +42,8 @@ class GitHubReportTestSuite(unittest.TestCase):
         expected = json.dumps(expected, indent=2, sort_keys=True)
         self.assertEqual(actual, expected)
 
+    def test_pandas(self):
+        print(self.ghr.build_dataframe())
 
 if __name__ == '__main__':
     unittest.main()

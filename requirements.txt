@@ -5,3 +5,4 @@ sphinx
 pygsheets
 Flask
 gunicorn
+pandas
