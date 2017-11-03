@@ -85,7 +85,7 @@ class GitBranches:
         # `git diff #{master}...#{branch_name} | grep ^[+-] | wc -l`.strip
     
         return {
-            'branch_name': branch_name.replace("{o}/".format(o=origin), ''),
+            'branch': branch_name.replace("{o}/".format(o=origin), ''),
             'ahead': num_commits_ahead,
             'behind': len(self.get_commits(branch_name, reference_branch)),
             'latest_commit_date': latest_commit,

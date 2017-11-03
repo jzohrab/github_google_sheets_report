@@ -20,6 +20,9 @@ run:
 test:
 	python -m unittest tests/*.py
 
+t:
+	python -m unittest tests/test_github_report.py
+
 # Only useful during dev while things are thrashing!
 # This should be removed.
 create_test_expectations:

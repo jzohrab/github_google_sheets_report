@@ -14,7 +14,7 @@ class GitHubReport:
     def build_report(self):
         git_branches = GitBranches(self.config, self.git_repo).load_data()
         prs = GitHubPullRequests(self.config, self.github_api).load_data()
-        branch_dict = { b['branch_name']:b for b in git_branches }
+        branch_dict = { b['branch']:b for b in git_branches }
         pr_dict = { pr['branch']:pr for pr in prs }
 
         full = {branch_name: dict(list(branch_dict[branch_name].items()) + list(pr_dict.get(branch_name, {}).items())) for branch_name, data in branch_dict.items()}
@@ -58,6 +58,22 @@ class GitHubReport:
         df = pandas.DataFrame(self.build_report(), columns=columns)
         df.fillna(value='', inplace=True)
         return df
+
+    def build_dataframe_v2(self):
+        git_branches = GitBranches(self.config, self.git_repo).load_data()
+        branch_df = pandas.DataFrame(git_branches)
+
+        prs = GitHubPullRequests(self.config, self.github_api).load_data()
+        pr_df = pandas.DataFrame(prs)
+
+        data = pandas.merge(branch_df, pr_df, how='left', left_on=['branch'], right_on=['branch'])
+        data.fillna(value='', inplace=True)
+
+        for f in ['authors', 'approved', 'declined']:
+            data[f + '_concat'] = list(map(lambda s: ', '.join(s), data[f]))
+            data[f + '_count'] = list(map(lambda s: len(s), data[f]))
+
+        return data
 
 def build_report():
     def get_valid_env_var(name):
