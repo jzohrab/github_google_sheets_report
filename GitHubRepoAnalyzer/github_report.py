@@ -9,6 +9,11 @@ import pandas
 
 class TimeUtils:
     @staticmethod
+    def days_elapsed(reference_date, d):
+        s = int((reference_date - d).total_seconds())
+        return s // (24 * 60 * 60)  # seconds per day
+
+    @staticmethod
     def human_elapsed_time(reference_date, d):
         if (d > reference_date):
            return "Some time in the future (?)"
@@ -58,6 +63,12 @@ class GitHubReport:
         d = self.github_datetime_to_date(s)
         return TimeUtils.human_elapsed_time(self.reference_date, d)
 
+    def github_days_elapsed(self, s):
+        if s is None:
+            return None
+        d = self.github_datetime_to_date(s)
+        return TimeUtils.days_elapsed(self.reference_date, d)
+
     def git_date_to_date(self, s):
         d = datetime.datetime.strptime(s, "%Y-%m-%d")
         toronto = pytz.timezone('America/Toronto')
@@ -68,7 +79,13 @@ class GitHubReport:
             return None
         d = self.git_date_to_date(s)
         return TimeUtils.human_elapsed_time(self.reference_date, d)
-        
+
+    def git_days_elapsed(self, s):
+        if s is None:
+            return None
+        d = self.git_date_to_date(s)
+        return TimeUtils.days_elapsed(self.reference_date, d)
+
     def build_dataframe(self):
         git_branches = GitBranches(self.config, self.git_repo).load_data()
         branch_columns = [
@@ -82,6 +99,7 @@ class GitHubReport:
         for f in ['authors']:
             branch_df[f + '_concat'] = list(map(lambda s: ', '.join(s), branch_df[f]))
             branch_df[f + '_count'] = list(map(lambda s: len(s), branch_df[f]))
+        branch_df['commit_age_days'] = list(map(lambda d: self.git_days_elapsed(d), branch_df['latest_commit_date']))
         branch_df['commit_days_ago'] = list(map(lambda d: self.git_days_ago(d), branch_df['latest_commit_date']))
 
         prs = GitHubPullRequests(self.config, self.github_api).load_data()
@@ -92,7 +110,6 @@ class GitHubReport:
             'url',
             'user',
             'updated_at',
-            
             'declined',
             'declined_concat',
             'declined_count',
@@ -106,6 +123,7 @@ class GitHubReport:
         for f in ['approved', 'declined']:
             pr_df[f + '_concat'] = list(map(lambda s: ', '.join(s), pr_df[f]))
             pr_df[f + '_count'] = list(map(lambda s: len(s), pr_df[f]))
+        pr_df['pr_age_days'] = list(map(lambda d: self.github_days_elapsed(d), pr_df['updated_at']))
         pr_df['github_days_ago'] = list(map(lambda d: self.github_days_ago(d), pr_df['updated_at']))
 
         data = pandas.merge(branch_df, pr_df, how='left', left_on=['branch'], right_on=['branch'])

@@ -1,12 +1,65 @@
+from GitHubRepoAnalyzer.branch_report import GitBranches, GitRepo
+from GitHubRepoAnalyzer.pull_reqs import GitHubApi, GitHubPullRequests
+from GitHubRepoAnalyzer.github_report import GitHubReport
+
+import yaml
+import json
+import os
+import datetime
+import pytz
+import pandas
 import pygsheets
-gc = pygsheets.authorize()
-sh = gc.open('my new ssheet')
-wks = sh.sheet1
-wks = sh.worksheet_by_title('raw_data')
-wks.update_cells(crange='A2', values=[[1,2],[3,4],[5,6]])   # can sort the array in python before output
-tel = {'jack': 4098, 'sape': 4139}
-tel2 = {'sape': 2222, 'jack': 1111}
-wks.update_cells(crange='A1', values=[['aeou','aoeubb']])
-# wks.update_cells(crange='A1', values=[tel.keys()])
-# wks.update_cells(crange='A1', values=[tel2.keys()])
-# wks.update_cells(crange='A2', values=[tel.values(), tel2.values()])
+
+def create_report():
+    def get_valid_env_var(name):
+        ret = os.environ[name]
+        if (ret is None or ret.strip() == ''):
+            print("Missing {name} env variable".format(name = name))
+            sys.exit()
+        return ret
+
+    config = None
+    with open('config.yml', 'r') as f:
+        config = yaml.load(f)
+
+    git_repo = GitRepo(config['localclone']['source_dir'])
+
+    token = get_valid_env_var('GITHUB_TOKEN')
+    account = get_valid_env_var('GITHUB_TOKEN_ACCOUNT')
+    github_api = GitHubApi(account, token)
+
+    reference_date = datetime.datetime.now()
+    toronto = pytz.timezone('America/Toronto')
+    reference_date = pytz.utc.localize(reference_date)
+
+    ghr = GitHubReport(config, git_repo, github_api, reference_date)
+    df = ghr.build_dataframe()
+    cols = [
+        'branch',
+        'ahead',
+        'behind',
+        'authors_concat',
+        'latest_commit_date',
+        'commit_age_days',
+        'commit_days_ago',
+        'number',
+        'title',
+        'url',
+        'user',
+        'updated_at',
+        'pr_age_days',
+        'github_days_ago',
+        'approved_count',
+        'declined_count',
+        'mergeable',
+        'status',
+    ]
+    output_df = df[cols]
+    gc = pygsheets.authorize()
+    sh = gc.open('my new ssheet')
+    wks = sh.sheet1
+    wks = sh.worksheet_by_title('raw_data')
+    wks.set_dataframe(output_df,(1,1))
+
+if __name__ == '__main__':
+    create_report()

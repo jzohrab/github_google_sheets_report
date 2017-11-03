@@ -80,9 +80,14 @@ class GitHubReportTestSuite(unittest.TestCase):
         currdir = os.path.dirname(os.path.abspath(__file__))
         expected_file = os.path.join(currdir, 'data', 'expected_results', 'test_github_report.csv')
         expected = ''
+        # with open(expected_file, 'w') as f:
+        #     f.write(actual)
         with open(expected_file, 'r') as f:
             expected = f.read()
         self.assertEqual(actual.strip(), expected.strip())
+
+    def test_git_days_ago(self):
+        self.assertEqual(self.ghr.git_days_elapsed('2017-10-27'), 2)
 
 if __name__ == '__main__':
     unittest.main()
