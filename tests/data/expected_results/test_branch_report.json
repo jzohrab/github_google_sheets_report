@@ -55,7 +55,7 @@
   },
   {
     "ahead": 0,
-    "authors": null,
+    "authors": [],
     "behind": 4,
     "branch": "master",
     "latest_commit_date": null

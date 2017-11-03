@@ -89,7 +89,7 @@ class GitBranches:
             'ahead': num_commits_ahead,
             'behind': len(self.get_commits(branch_name, reference_branch)),
             'latest_commit_date': latest_commit,
-            'authors': authors
+            'authors': authors or []
             }
     
     

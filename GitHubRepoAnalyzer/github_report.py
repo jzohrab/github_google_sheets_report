@@ -61,17 +61,43 @@ class GitHubReport:
 
     def build_dataframe_v2(self):
         git_branches = GitBranches(self.config, self.git_repo).load_data()
-        branch_df = pandas.DataFrame(git_branches)
+        branch_columns = [
+            'branch',
+            'ahead',
+            'behind',
+            'authors',
+            'latest_commit_date'
+        ]
+        branch_df = pandas.DataFrame(git_branches, columns = branch_columns)
+        for f in ['authors']:
+            branch_df[f + '_concat'] = list(map(lambda s: ', '.join(s), branch_df[f]))
+            branch_df[f + '_count'] = list(map(lambda s: len(s), branch_df[f]))
 
         prs = GitHubPullRequests(self.config, self.github_api).load_data()
-        pr_df = pandas.DataFrame(prs)
+        pr_columns = [
+            'branch',
+            'number',
+            'title',
+            'url',
+            'user',
+            'updated_at',
+            
+            'declined',
+            'declined_concat',
+            'declined_count',
+            'approved',
+            'approved_concat',
+            'approved_count',
+            'mergeable',
+            'status'
+        ]
+        pr_df = pandas.DataFrame(prs, columns = pr_columns)
+        for f in ['approved', 'declined']:
+            pr_df[f + '_concat'] = list(map(lambda s: ', '.join(s), pr_df[f]))
+            pr_df[f + '_count'] = list(map(lambda s: len(s), pr_df[f]))
 
         data = pandas.merge(branch_df, pr_df, how='left', left_on=['branch'], right_on=['branch'])
         data.fillna(value='', inplace=True)
-
-        for f in ['authors', 'approved', 'declined']:
-            data[f + '_concat'] = list(map(lambda s: ', '.join(s), data[f]))
-            data[f + '_count'] = list(map(lambda s: len(s), data[f]))
 
         return data
 
