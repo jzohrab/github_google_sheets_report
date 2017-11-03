@@ -7,7 +7,7 @@
     "number": 9,
     "status": null,
     "title": "Hotfix",
-    "updated_at": "Thu Oct 26 22:27:39 2017",
+    "updated_at": "2017-10-27T02:27:39Z",
     "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/9",
     "user": "jeff-zohrab"
   },
@@ -19,7 +19,7 @@
     "number": 8,
     "status": "success",
     "title": "Passes.",
-    "updated_at": "Thu Oct 26 17:05:22 2017",
+    "updated_at": "2017-10-26T21:05:22Z",
     "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/8",
     "user": "jeff-zohrab"
   },
@@ -33,7 +33,7 @@
     "number": 7,
     "status": "success",
     "title": "Feature/3 fail then success",
-    "updated_at": "Fri Oct 27 22:28:19 2017",
+    "updated_at": "2017-10-28T02:28:19Z",
     "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/7",
     "user": "jeff-zohrab"
   },
@@ -47,7 +47,7 @@
     "number": 6,
     "status": "error",
     "title": "Feature/2 success then fail",
-    "updated_at": "Thu Oct 26 17:06:19 2017",
+    "updated_at": "2017-10-26T21:06:19Z",
     "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/6",
     "user": "jeff-zohrab"
   },
@@ -59,7 +59,7 @@
     "number": 5,
     "status": "success",
     "title": "success",
-    "updated_at": "Thu Oct 26 16:28:25 2017",
+    "updated_at": "2017-10-26T20:28:25Z",
     "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/5",
     "user": "jeff-zohrab"
   },
@@ -71,7 +71,7 @@
     "number": 4,
     "status": "success",
     "title": "44: 44",
-    "updated_at": "Fri Oct 20 15:00:00 2017",
+    "updated_at": "2017-10-20T19:00:00Z",
     "url": "https://github.com/jeff-zohrab/demo_gitflow/pull/4",
     "user": "jeff-zohrab"
   }

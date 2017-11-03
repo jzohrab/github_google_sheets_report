@@ -1,8 +1,6 @@
 import requests
 import json
 import sys
-import datetime
-import pytz
 import os
 import yaml
 import subprocess
@@ -53,16 +51,6 @@ class GitHubPullRequests:
         self.config = config
         self.github_api = github_api
 
-    def github_datetime_to_date(self, s):
-        """Extracts date from GitHub date, per
-        https://stackoverflow.com/questions/18795713/ \
-          parse-and-format-the-date-from-the-github-api-in-python"""
-        toronto = pytz.timezone('America/Toronto')
-        d = pytz.utc.localize(datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
-        toronto_d = d.astimezone(toronto)
-        return toronto_d.strftime('%c')
-    
-    
     def get_pr(self, base_url, number):
         def simplify(pr):
             return {
@@ -71,7 +59,7 @@ class GitHubPullRequests:
                 'url': pr['html_url'],
                 'title': pr['title'],
                 'user': pr['user']['login'],
-                'updated_at': self.github_datetime_to_date(pr['updated_at']),
+                'updated_at': pr['updated_at'],
                 'mergeable': pr['mergeable']
             }
         url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
@@ -95,7 +83,7 @@ class GitHubPullRequests:
                 'context': status['context'],
                 'state': status['state'],
                 'description': status['description'],
-                'updated_at': self.github_datetime_to_date(status['updated_at'])
+                'updated_at': status['updated_at']
             }
         aborted_msg = 'The build of this commit was aborted'
         jenkins_context = 'continuous-integration/jenkins/branch'

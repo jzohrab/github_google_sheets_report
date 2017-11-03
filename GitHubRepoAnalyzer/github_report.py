@@ -11,6 +11,16 @@ class GitHubReport:
         self.git_repo = git_repo
         self.github_api = github_api
 
+    def github_datetime_to_date(self, s):
+        """Extracts date from GitHub date, per
+        https://stackoverflow.com/questions/18795713/ \
+          parse-and-format-the-date-from-the-github-api-in-python"""
+        return s
+        toronto = pytz.timezone('America/Toronto')
+        d = pytz.utc.localize(datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
+        toronto_d = d.astimezone(toronto)
+        return toronto_d.strftime('%c')
+
     def build_report(self):
         git_branches = GitBranches(self.config, self.git_repo).load_data()
         prs = GitHubPullRequests(self.config, self.github_api).load_data()
