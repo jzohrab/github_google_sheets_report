@@ -21,13 +21,21 @@ class GitHubReport:
         # print(data)
         # return
         def final_data(d):
-            def array(key):
-                return d.get(key, []) or []
-            def get_joined(key):
-                return ', '.join(d.get(key, []) or [])
-            d['authors'] = get_joined('authors')
-            d['approved'] = get_joined('approved')
-            d['declined'] = get_joined('declined')
+            updates = {}
+            for field in ['authors', 'approved', 'declined']:
+                a = d.get(field, []) or []
+                updates[field + '_concat'] = ', '.join(a)
+                updates[field + '_count'] = len(a)
+            # print(updates)
+            # def array(key):
+            #     return d.get(key, []) or []
+            # def get_joined(key):
+            #     return ', '.join(d.get(key, []) or [])
+            # d['authors'] = get_joined('authors')
+            # d['approved'] = get_joined('approved')
+            # d['declined'] = get_joined('declined')
+            d = dict(list(d.items()) + list(updates.items()))
+            # print(d)
             return d
         data = list(map(final_data, data))
         return data
