@@ -36,8 +36,8 @@ def create_report():
     df = ghr.build_dataframe()
     cols = [
         'branch',
-        'ahead',
         'behind',
+        'ahead',
         'authors_concat',
         'latest_commit_date',
         'commit_age_days',
@@ -56,8 +56,7 @@ def create_report():
     ]
     output_df = df[cols]
     gc = pygsheets.authorize()
-    sh = gc.open('my new ssheet')
-    wks = sh.sheet1
+    sh = gc.open('branches_and_prs')
     wks = sh.worksheet_by_title('raw_data')
     wks.set_dataframe(output_df,(1,1))
 
