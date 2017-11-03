@@ -31,7 +31,31 @@ class GitHubReport:
         return data
 
     def build_dataframe(self):
-        df = pandas.DataFrame(self.build_report())
+        columns = [
+            'branch',
+            'ahead',
+            'behind',
+            'authors',
+            'authors_concat',
+            'authors_count',
+            'latest_commit_date',
+            
+            'number',
+            'title',
+            'url',
+            'user',
+            'updated_at',
+            
+            'declined',
+            'declined_concat',
+            'declined_count',
+            'approved',
+            'approved_concat',
+            'approved_count',
+            'mergeable',
+            'status'
+        ]
+        df = pandas.DataFrame(self.build_report(), columns=columns)
         df.fillna(value='', inplace=True)
         return df
 
