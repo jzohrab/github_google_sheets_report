@@ -74,27 +74,15 @@ class GitHubReportTestSuite(unittest.TestCase):
         self.ghr = gr.GitHubReport(config, fake_repo, fake_api, reference_date)
         self.maxDiff = None
 
-    def zzz_test_data_is_processed(self):
-        data = self.ghr.build_report()
-        data.sort(key = lambda d: d['branch'])
-        actual = json.dumps(data, indent=2, sort_keys=True)
-
-        currdir = os.path.dirname(os.path.abspath(__file__))
-        expected_file = os.path.join(currdir, 'data', 'expected_results', 'test_github_report.json')
-        expected = None
-        with open(expected_file, 'r') as f:
-            expected = json.load(f)
-        expected.sort(key = lambda d: d['branch'])
-        expected = json.dumps(expected, indent=2, sort_keys=True)
-        self.assertEqual(actual, expected)
-
-    def zzz_test_pandas(self):
+    def test_build_report(self):
         df = self.ghr.build_dataframe()
-        # print(df)
-
-    def test_pandas_2(self):
-        df = self.ghr.build_dataframe_v2()
-        print(df)
+        actual = df.to_csv()
+        currdir = os.path.dirname(os.path.abspath(__file__))
+        expected_file = os.path.join(currdir, 'data', 'expected_results', 'test_github_report.csv')
+        expected = ''
+        with open(expected_file, 'r') as f:
+            expected = f.read()
+        self.assertEqual(actual.strip(), expected.strip())
 
 if __name__ == '__main__':
     unittest.main()

@@ -69,55 +69,7 @@ class GitHubReport:
         d = self.git_date_to_date(s)
         return TimeUtils.human_elapsed_time(self.reference_date, d)
         
-    def build_report(self):
-        git_branches = GitBranches(self.config, self.git_repo).load_data()
-        prs = GitHubPullRequests(self.config, self.github_api).load_data()
-        branch_dict = { b['branch']:b for b in git_branches }
-        pr_dict = { pr['branch']:pr for pr in prs }
-
-        full = {branch_name: dict(list(branch_dict[branch_name].items()) + list(pr_dict.get(branch_name, {}).items())) for branch_name, data in branch_dict.items()}
-        data = list(full.values())
-        def final_data(d):
-            updates = {}
-            for field in ['authors', 'approved', 'declined']:
-                a = d.get(field, []) or []
-                updates[field + '_concat'] = ', '.join(a)
-                updates[field + '_count'] = len(a)
-            d = dict(list(d.items()) + list(updates.items()))
-            return d
-        data = list(map(final_data, data))
-        return data
-
     def build_dataframe(self):
-        columns = [
-            'branch',
-            'ahead',
-            'behind',
-            'authors',
-            'authors_concat',
-            'authors_count',
-            'latest_commit_date',
-            
-            'number',
-            'title',
-            'url',
-            'user',
-            'updated_at',
-            
-            'declined',
-            'declined_concat',
-            'declined_count',
-            'approved',
-            'approved_concat',
-            'approved_count',
-            'mergeable',
-            'status'
-        ]
-        df = pandas.DataFrame(self.build_report(), columns=columns)
-        df.fillna(value='', inplace=True)
-        return df
-
-    def build_dataframe_v2(self):
         git_branches = GitBranches(self.config, self.git_repo).load_data()
         branch_columns = [
             'branch',
@@ -161,7 +113,8 @@ class GitHubReport:
 
         return data
 
-def build_report():
+
+if __name__ == '__main__':
     def get_valid_env_var(name):
         ret = os.environ[name]
         if (ret is None or ret.strip() == ''):
@@ -180,7 +133,4 @@ def build_report():
     github_api = GitHubApi(account, token)
 
     ghr = GitHubReport(config, git_repo, github_api)
-    ghr.build_report()
-
-if __name__ == '__main__':
-    build_report()
+    print(ghr.build_dataframe())
