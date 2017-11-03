@@ -20,23 +20,18 @@ class TimeUtils:
         hour = 60 * minute
         day = 24 * hour
         month = 30 * day
-        
-        if s < minute:
-            return "< 1 minute ago"
-        if s < 2*minute:
-            return "1 minute ago"
-        if s < hour:
-            return "{n} minutes ago".format(n = s // minute)
-        if s < 2*hour:
-            return "1 hour ago"
-        if s < day:
-            return "{n} hours ago".format(n = s // hour)
-        if s < 2*day:
-            return "1 day ago"
-        if s < month:
-            return "{n} days ago".format(n = s // day)
-        if s < 2*month:
-            return "1 month ago"
+
+        def msg(s, unit_size, unit_name):
+            count = s // unit_size
+            pluralized = unit_name
+            if count > 1:
+                pluralized += 's'
+            return "{n} {units} ago".format(n = count, units = pluralized)
+        if s < minute:  return "< 1 minute ago"
+        if s < hour:    return msg(s, minute, 'minute')
+        if s < day:     return msg(s, hour, 'hour')
+        if s < month:   return msg(s, day, 'day')
+        if s < 2*month: return "1 month ago"
         if s < 7*month:
             return "{n} months ago".format(n = s // month)
         return "> 6 months ago"
