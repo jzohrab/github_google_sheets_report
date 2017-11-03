@@ -3,24 +3,63 @@ from .pull_reqs import GitHubApi, GitHubPullRequests
 import yaml
 import json
 import os
+import datetime
 import pandas
 
+class TimeUtils:
+    @staticmethod
+    def human_elapsed_time(reference_date, d):
+        if (d > reference_date):
+           return "Some time in the future (?)"
+        s = int((reference_date - d).total_seconds())
+        # if s < 0:
+        #     return "Some time in the future (?)"
+        if s == 0:
+            return "Just now"
+        minute = 60
+        hour = 60 * minute
+        day = 24 * hour
+        month = 30 * day
+        
+        if s < minute:
+            return "< 1 minute ago"
+        if s < 2*minute:
+            return "1 minute ago"
+        if s < hour:
+            return "{n} minutes ago".format(n = s // minute)
+        if s < 2*hour:
+            return "1 hour ago"
+        if s < day:
+            return "{n} hours ago".format(n = s // hour)
+        if s < 2*day:
+            return "1 day ago"
+        if s < month:
+            return "{n} days ago".format(n = s // day)
+        if s < 2*month:
+            return "1 month ago"
+        if s < 7*month:
+            return "{n} months ago".format(n = s // month)
+        return "> 6 months ago"
+    
 class GitHubReport:
-    def __init__(self, config, git_repo, github_api):
+    def __init__(self, config, git_repo, github_api, reference_date = datetime.datetime.now):
         self.config = config
         self.git_repo = git_repo
         self.github_api = github_api
+        self.reference_date = reference_date
 
+        
     def github_datetime_to_date(self, s):
         """Extracts date from GitHub date, per
         https://stackoverflow.com/questions/18795713/ \
           parse-and-format-the-date-from-the-github-api-in-python"""
-        return s
         toronto = pytz.timezone('America/Toronto')
         d = pytz.utc.localize(datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
-        toronto_d = d.astimezone(toronto)
-        return toronto_d.strftime('%c')
+        return d.astimezone(toronto)
 
+    def git_date_to_date(self, s):
+        return datetime.datetime.strptime(s, "%Y-%m-%d")
+    
     def build_report(self):
         git_branches = GitBranches(self.config, self.git_repo).load_data()
         prs = GitHubPullRequests(self.config, self.github_api).load_data()
