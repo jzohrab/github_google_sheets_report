@@ -19,30 +19,21 @@ class GitHubReport:
 
         full = {branch_name: dict(list(branch_dict[branch_name].items()) + list(pr_dict.get(branch_name, {}).items())) for branch_name, data in branch_dict.items()}
         data = list(full.values())
-        # print(data)
-        # return
         def final_data(d):
             updates = {}
             for field in ['authors', 'approved', 'declined']:
                 a = d.get(field, []) or []
                 updates[field + '_concat'] = ', '.join(a)
                 updates[field + '_count'] = len(a)
-            # print(updates)
-            # def array(key):
-            #     return d.get(key, []) or []
-            # def get_joined(key):
-            #     return ', '.join(d.get(key, []) or [])
-            # d['authors'] = get_joined('authors')
-            # d['approved'] = get_joined('approved')
-            # d['declined'] = get_joined('declined')
             d = dict(list(d.items()) + list(updates.items()))
-            # print(d)
             return d
         data = list(map(final_data, data))
         return data
 
     def build_dataframe(self):
-        return pandas.DataFrame(self.build_report())
+        df = pandas.DataFrame(self.build_report())
+        df.fillna(value='', inplace=True)
+        return df
 
 def build_report():
     def get_valid_env_var(name):

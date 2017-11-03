@@ -43,7 +43,8 @@ class GitHubReportTestSuite(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_pandas(self):
-        print(self.ghr.build_dataframe())
+        df = self.ghr.build_dataframe()
+        print(df)
 
 if __name__ == '__main__':
     unittest.main()
