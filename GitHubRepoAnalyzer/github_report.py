@@ -21,6 +21,8 @@ class GitHubReport:
         # print(data)
         # return
         def final_data(d):
+            def array(key):
+                return d.get(key, []) or []
             def get_joined(key):
                 return ', '.join(d.get(key, []) or [])
             d['authors'] = get_joined('authors')
@@ -28,7 +30,7 @@ class GitHubReport:
             d['declined'] = get_joined('declined')
             return d
         data = list(map(final_data, data))
-        print(data)
+        return data
 
 def build_report():
     def get_valid_env_var(name):

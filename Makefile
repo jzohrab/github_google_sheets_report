@@ -20,5 +20,10 @@ run:
 test:
 	python -m unittest tests/*.py
 
+# Only useful during dev while things are thrashing!
+# This should be removed.
+create_test_expectations:
+	python -m unittest tests/test_github_report.py > tests/data/expected_results/test_github_report.json
+
 clean:
 	find . -name '*.pyc' -print0 | xargs -0 rm

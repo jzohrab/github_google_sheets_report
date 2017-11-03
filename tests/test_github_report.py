@@ -29,7 +29,18 @@ class GitHubReportTestSuite(unittest.TestCase):
         self.maxDiff = None
 
     def test_data_is_processed(self):
-        self.ghr.build_report()
+        data = self.ghr.build_report()
+        data = data.sort(key = lambda d: d['branch_name'])
+        actual = json.dumps(data, indent=2, sort_keys=True)
+
+        currdir = os.path.dirname(os.path.abspath(__file__))
+        expected_file = os.path.join(currdir, 'data', 'expected_results', 'test_github_report.json')
+        expected = None
+        with open(expected_file, 'r') as f:
+            expected = json.load(f)
+        expected = expected.sort(key = lambda d: d['branch_name'])
+        expected = json.dumps(expected, indent=2, sort_keys=True)
+        self.assertEqual(actual, expected)
 
 
 if __name__ == '__main__':
