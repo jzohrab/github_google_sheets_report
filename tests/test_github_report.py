@@ -32,7 +32,6 @@ class GitHubReportTestSuite(unittest.TestCase):
         data = self.ghr.build_report()
         data.sort(key = lambda d: d['branch_name'])
         actual = json.dumps(data, indent=2, sort_keys=True)
-        print(actual)
 
         currdir = os.path.dirname(os.path.abspath(__file__))
         expected_file = os.path.join(currdir, 'data', 'expected_results', 'test_github_report.json')
