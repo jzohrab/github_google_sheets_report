@@ -6,7 +6,7 @@ import inspect
 import subprocess
 import json
 import sys
-
+import re
 
 class GitRepo:
     """Wrapper to allow for dependency injection."""
@@ -124,8 +124,11 @@ class GitBranches:
             origin=origin,
             branch=self.config['develop_branch']
         )
-        
-        branches = [b for b in branches if b != reference_branch]
+
+        branch_regex = [ "{origin}/{r}".format(origin=origin, r=filter) for filter in self.config['include'] ]
+        combined = "(" + ")|(".join(branch_regex) + ")"
+
+        branches = [b for b in branches if b != reference_branch and re.match(combined, b)]
         # print(branches)
         
         data = [self.get_branch_data(reference_branch, b, origin) for b in branches]

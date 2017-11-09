@@ -6,4 +6,5 @@
   origin/feature/44
   origin/feature/4_success_then_abort
   origin/hotfix_other_branch
+  origin/this_branch_should_be_ignored
   origin/master

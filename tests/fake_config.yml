@@ -1,0 +1,17 @@
+# Fake configuration for the tests.
+
+master_branch: master
+develop_branch: develop
+include: [ feature.*, hotfix.*, master ]
+
+# GitHub
+github:
+  api_endpoint: https://api.github.com
+  org: jeff-zohrab
+  repo: demo_gitflow
+
+localclone:
+  source_dir: ../demo_gitflow
+  origin_name: origin
+  do_fetch: false
+  do_prune: false

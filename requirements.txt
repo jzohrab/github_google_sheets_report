@@ -6,3 +6,4 @@ pygsheets
 Flask
 gunicorn
 pandas
+regex
