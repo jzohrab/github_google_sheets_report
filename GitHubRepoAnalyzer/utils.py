@@ -3,6 +3,13 @@ import pytz
 
 class TimeUtils:
     @staticmethod
+    def today():
+        reference_date = datetime.datetime.strptime('2017-10-29', "%Y-%m-%d")
+        toronto = pytz.timezone('America/Toronto')
+        reference_date = pytz.utc.localize(reference_date)
+        return reference_date
+
+    @staticmethod
     def days_elapsed(reference_date, d):
         s = int((reference_date - d).total_seconds())
         return s // (24 * 60 * 60)  # seconds per day

@@ -8,6 +8,8 @@ import json
 import sys
 import re
 
+from .utils import TimeUtils
+
 class GitRepo:
     """Wrapper to allow for dependency injection."""
     def __init__(self, directory):
@@ -42,9 +44,10 @@ class GitRepo:
 class GitBranches:
     """Extracts and aggregates Git branch data for a high-level overview."""
 
-    def __init__(self, config, git_repo):
+    def __init__(self, config, git_repo, reference_date):
         self.config = config
         self.git = git_repo
+        self.reference_date = reference_date
     
     def clean_author_name(self, s):
         """Semi-standardize author names where possible.
@@ -61,7 +64,24 @@ class GitBranches:
             (first, last) = s.split('-', 1)
             ret = "{f}{last}".format(f = first[0], last = last)
         return ret.lower()
-    
+
+    def git_date_to_date(self, s):
+        d = datetime.datetime.strptime(s, "%Y-%m-%d")
+        toronto = pytz.timezone('America/Toronto')
+        return pytz.utc.localize(d)
+
+    def git_days_ago(self, s):
+        if s is None:
+            return None
+        d = self.git_date_to_date(s)
+        return TimeUtils.human_elapsed_time(self.reference_date, d)
+
+    def git_days_elapsed(self, s):
+        if s is None:
+            return None
+        d = self.git_date_to_date(s)
+        return TimeUtils.days_elapsed(self.reference_date, d)
+
     def get_commits(self, from_branch, to_branch):
         cmd = "git log --date=short --format=\"%cd %an\" {m}..{b}"
         cmd = cmd.format(m=from_branch, b=to_branch)
@@ -140,5 +160,5 @@ if __name__ == '__main__':
     with open('config.yml', 'r') as f:
         config = yaml.load(f)
     dirname = config['localclone']['source_dir']
-    data = GitBranches(config, GitRepo(dirname)).load_data()
+    data = GitBranches(config, GitRepo(dirname), TimeUtils.today()).load_data()
     print(json.dumps(data, indent=2, sort_keys=True))

@@ -10,7 +10,8 @@ import unittest
 import os
 import json
 import yaml
-
+import datetime
+import pytz
 
 class GitBranchesTestSuite(unittest.TestCase):
     """Basic test cases."""
@@ -22,7 +23,11 @@ class GitBranchesTestSuite(unittest.TestCase):
         config_file = os.path.join(currdir, 'fake_config.yml')
         with open(config_file, 'r') as f:
             config = yaml.load(f)
-        self.branch_report = branch_report.GitBranches(config, fake_repo)
+        reference_date = datetime.datetime.strptime('2017-10-29', "%Y-%m-%d")
+        toronto = pytz.timezone('America/Toronto')
+        reference_date = pytz.utc.localize(reference_date)
+
+        self.branch_report = branch_report.GitBranches(config, fake_repo, reference_date)
         self.maxDiff = None
 
     def test_data_is_processed(self):

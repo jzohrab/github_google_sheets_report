@@ -55,7 +55,7 @@ class GitHubReport:
         return TimeUtils.days_elapsed(self.reference_date, d)
 
     def build_dataframe(self):
-        git_branches = GitBranches(self.config, self.git_repo).load_data()
+        git_branches = GitBranches(self.config, self.git_repo, self.reference_date).load_data()
         branch_columns = [
             'branch',
             'ahead',
