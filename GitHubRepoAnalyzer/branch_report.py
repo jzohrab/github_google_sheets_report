@@ -155,7 +155,11 @@ class GitBranches:
         # print(branches)
         
         data = [self.get_branch_data(reference_branch, b, origin) for b in branches]
-        return data
+
+        # Note comparing things by string below, as comparing by
+        # number seems to magically coerce the values of the hash to
+        # decimals (e.g., b['ahead'] = 0.0).
+        return [b for b in data if b['ahead'] != '0']
 
     def load_dataframe(self):
         git_branches = self.load_data()

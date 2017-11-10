@@ -32,8 +32,18 @@ def create_report():
     toronto = pytz.timezone('America/Toronto')
     reference_date = pytz.utc.localize(reference_date)
 
+    gc = pygsheets.authorize()
+    sh = gc.open('klick-genome repo')
+
+    def dump_dataframe(title, df, columns):
+        wks = sh.worksheet_by_title(title)
+        wks.clear()
+        wks.set_dataframe(df[columns],(1,1))
+
     ghr = GitHubReport(config, git_repo, github_api, reference_date)
-    df = ghr.build_dataframe()
+    gb = GitBranches(config, git_repo, reference_date)
+    prs = GitHubPullRequests(config, github_api, reference_date)
+
     cols = [
         'branch',
         'behind',
@@ -54,21 +64,34 @@ def create_report():
         'mergeable',
         'status',
     ]
-    output_df = df[cols]
-    gc = pygsheets.authorize()
-    sh = gc.open('klick-genome repo')
+    df = ghr.build_dataframe()
+    dump_dataframe('raw_data_full', df, cols)
 
-    def dump_dataframe(title, df):
-        wks = sh.worksheet_by_title(title)
-        wks.clear()
-        wks.set_dataframe(df,(1,1))
+    cols = [
+        'branch',
+        'behind',
+        'ahead',
+        'authors_concat',
+        'latest_commit_date',
+        'commit_age_days',
+        'commit_days_ago'
+    ]
+    dump_dataframe('raw_data_branches', gb.load_dataframe(), cols)
 
-    gb = GitBranches(config, git_repo, reference_date)
-    prs = GitHubPullRequests(config, github_api, reference_date)
-
-    dump_dataframe('raw_data_full', output_df)
-    dump_dataframe('raw_data_branches', gb.load_dataframe())
-    dump_dataframe('raw_data_pull_requests', prs.load_dataframe())
+    cols = [
+        'number',
+        'title',
+        'url',
+        'user',
+        'updated_at',
+        'pr_age_days',
+        'github_days_ago',
+        'approved_count',
+        'declined_count',
+        'mergeable',
+        'status'
+    ]
+    dump_dataframe('raw_data_pull_requests', prs.load_dataframe(), cols)
 
 
 if __name__ == '__main__':
