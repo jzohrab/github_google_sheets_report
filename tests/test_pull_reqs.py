@@ -9,6 +9,8 @@ import unittest
 import os
 import json
 import yaml
+import datetime
+import pytz
 
 
 class PullRequestsTestSuite(unittest.TestCase):
@@ -21,7 +23,10 @@ class PullRequestsTestSuite(unittest.TestCase):
         config_file = os.path.join(currdir, 'fake_config.yml')
         with open(config_file, 'r') as f:
             config = yaml.load(f)
-        self.prs = pull_reqs.GitHubPullRequests(config, fake_api)
+        reference_date = datetime.datetime.strptime('2017-10-29', "%Y-%m-%d")
+        toronto = pytz.timezone('America/Toronto')
+        reference_date = pytz.utc.localize(reference_date)
+        self.prs = pull_reqs.GitHubPullRequests(config, fake_api, reference_date)
         self.maxDiff = None
 
     def test_data_is_processed(self):
@@ -35,6 +40,11 @@ class PullRequestsTestSuite(unittest.TestCase):
         expected = json.dumps(expected_data, indent=2, sort_keys=True)
         self.assertEqual(actual, expected)
 
+    def test_dataframe_works(self):
+        df = self.prs.load_dataframe()
+        # If we reach here, we're ok.
+        # Higher-level integration tests will cover the accuracy ...
+        # should move those tests down here.
 
 if __name__ == '__main__':
     unittest.main()

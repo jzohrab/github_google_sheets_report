@@ -17,54 +17,11 @@ class GitHubReport:
         self.github_api = github_api
         self.reference_date = reference_date
 
-    def github_datetime_to_date(self, s):
-        """Extracts date from GitHub date, per
-        https://stackoverflow.com/questions/18795713/ \
-          parse-and-format-the-date-from-the-github-api-in-python"""
-        toronto = pytz.timezone('America/Toronto')
-        d = pytz.utc.localize(datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
-        return d.astimezone(toronto)
-
-    def github_days_ago(self, s):
-        if s is None:
-            return None
-        d = self.github_datetime_to_date(s)
-        return TimeUtils.human_elapsed_time(self.reference_date, d)
-
-    def github_days_elapsed(self, s):
-        if s is None:
-            return None
-        d = self.github_datetime_to_date(s)
-        return TimeUtils.days_elapsed(self.reference_date, d)
-
     def build_dataframe(self):
         gb = GitBranches(self.config, self.git_repo, self.reference_date)
         branch_df = gb.load_dataframe()
-
-        prs = GitHubPullRequests(self.config, self.github_api).load_data()
-        pr_columns = [
-            'branch',
-            'number',
-            'title',
-            'url',
-            'user',
-            'updated_at',
-            'declined',
-            'declined_concat',
-            'declined_count',
-            'approved',
-            'approved_concat',
-            'approved_count',
-            'mergeable',
-            'status'
-        ]
-        pr_df = pandas.DataFrame(prs, columns = pr_columns)
-        for f in ['approved', 'declined']:
-            pr_df[f + '_concat'] = list(map(lambda s: ', '.join(s), pr_df[f]))
-            pr_df[f + '_count'] = list(map(lambda s: len(s), pr_df[f]))
-        pr_df['pr_age_days'] = list(map(lambda d: self.github_days_elapsed(d), pr_df['updated_at']))
-        pr_df['github_days_ago'] = list(map(lambda d: self.github_days_ago(d), pr_df['updated_at']))
-
+        prs = GitHubPullRequests(self.config, self.github_api, self.reference_date)
+        pr_df = prs.load_dataframe()
         data = pandas.merge(branch_df, pr_df, how='left', left_on=['branch'], right_on=['branch'])
         data.fillna(value='', inplace=True)
 

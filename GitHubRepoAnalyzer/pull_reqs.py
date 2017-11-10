@@ -4,8 +4,11 @@ import sys
 import os
 import yaml
 import subprocess
+import pandas
+import datetime
+import pytz
 from requests.auth import HTTPBasicAuth
-
+from .utils import TimeUtils
 
 class GitHubApi:
     """Wrapper class to allow for dependency injection."""
@@ -47,9 +50,10 @@ class GitHubApi:
 class GitHubPullRequests:
     """Extracts and aggregates GitHub pull requests for a high-level overview."""
 
-    def __init__(self, config, github_api):
+    def __init__(self, config, github_api, reference_date):
         self.config = config
         self.github_api = github_api
+        self.reference_date = reference_date
 
     def get_pr(self, base_url, number):
         def simplify(pr):
@@ -75,7 +79,27 @@ class GitHubPullRequests:
         pr['declined'] = declined
     
         return pr
-    
+
+    def github_datetime_to_date(self, s):
+        """Extracts date from GitHub date, per
+        https://stackoverflow.com/questions/18795713/ \
+          parse-and-format-the-date-from-the-github-api-in-python"""
+        toronto = pytz.timezone('America/Toronto')
+        d = pytz.utc.localize(datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
+        return d.astimezone(toronto)
+
+    def github_days_ago(self, s):
+        if s is None:
+            return None
+        d = self.github_datetime_to_date(s)
+        return TimeUtils.human_elapsed_time(self.reference_date, d)
+
+    def github_days_elapsed(self, s):
+        if s is None:
+            return None
+        d = self.github_datetime_to_date(s)
+        return TimeUtils.days_elapsed(self.reference_date, d)
+
     def get_last_status(self, url):
         """Get the last clear success or error status."""
         def simplify(status):
@@ -130,6 +154,32 @@ class GitHubPullRequests:
         # have to first get the list of PRs and then get each PR individually.
         prs = [self.get_pr(base_url, n) for n in pr_numbers]
         return prs
+
+    def load_dataframe(self):
+        prs = self.load_data()
+        pr_columns = [
+            'branch',
+            'number',
+            'title',
+            'url',
+            'user',
+            'updated_at',
+            'declined',
+            'declined_concat',
+            'declined_count',
+            'approved',
+            'approved_concat',
+            'approved_count',
+            'mergeable',
+            'status'
+        ]
+        df = pandas.DataFrame(prs, columns = pr_columns)
+        for f in ['approved', 'declined']:
+            df[f + '_concat'] = list(map(lambda s: ', '.join(s), df[f]))
+            df[f + '_count'] = list(map(lambda s: len(s), df[f]))
+        df['pr_age_days'] = list(map(lambda d: self.github_days_elapsed(d), df['updated_at']))
+        df['github_days_ago'] = list(map(lambda d: self.github_days_ago(d), df['updated_at']))
+        return df
 
 
 if __name__ == '__main__':
