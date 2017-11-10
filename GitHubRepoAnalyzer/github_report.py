@@ -1,5 +1,7 @@
 from .branch_report import GitBranches, GitRepo
 from .pull_reqs import GitHubApi, GitHubPullRequests
+from .utils import TimeUtils
+
 import yaml
 import json
 import os
