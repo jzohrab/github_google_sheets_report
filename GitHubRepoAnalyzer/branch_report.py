@@ -7,6 +7,9 @@ import subprocess
 import json
 import sys
 import re
+import pandas
+import datetime
+import pytz
 
 from .utils import TimeUtils
 
@@ -154,6 +157,22 @@ class GitBranches:
         data = [self.get_branch_data(reference_branch, b, origin) for b in branches]
         return data
 
+    def load_dataframe(self):
+        git_branches = self.load_data()
+        branch_columns = [
+            'branch',
+            'ahead',
+            'behind',
+            'authors',
+            'latest_commit_date'
+        ]
+        df = pandas.DataFrame(git_branches, columns = branch_columns)
+        for f in ['authors']:
+            df[f + '_concat'] = list(map(lambda s: ', '.join(s), df[f]))
+            df[f + '_count'] = list(map(lambda s: len(s), df[f]))
+        df['commit_age_days'] = list(map(lambda d: self.git_days_elapsed(d), df['latest_commit_date']))
+        df['commit_days_ago'] = list(map(lambda d: self.git_days_ago(d), df['latest_commit_date']))
+        return df
 
 if __name__ == '__main__':
     config = None

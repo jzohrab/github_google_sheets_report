@@ -30,7 +30,7 @@ class GitBranchesTestSuite(unittest.TestCase):
         self.branch_report = branch_report.GitBranches(config, fake_repo, reference_date)
         self.maxDiff = None
 
-    def test_data_is_processed(self):
+    def test_data_matches_expected(self):
         currdir = os.path.dirname(os.path.abspath(__file__))
         expected_file = os.path.join(currdir, 'data', 'expected_results', 'test_branch_report.json')
         expected_data = None
@@ -41,6 +41,11 @@ class GitBranchesTestSuite(unittest.TestCase):
         expected = json.dumps(expected_data, indent=2, sort_keys=True)
         self.assertEqual(actual, expected)
 
+    def test_dataframe_works(self):
+        df = self.branch_report.load_dataframe()
+        # If we reach here, we're ok.
+        # Higher-level integration tests will cover the accuracy ...
+        # should move those tests down here.
 
 if __name__ == '__main__':
     unittest.main()
