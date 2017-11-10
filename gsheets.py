@@ -57,9 +57,19 @@ def create_report():
     output_df = df[cols]
     gc = pygsheets.authorize()
     sh = gc.open('klick-genome repo')
-    wks = sh.worksheet_by_title('raw_branch_data')
-    wks.clear()
-    wks.set_dataframe(output_df,(1,1))
+
+    def dump_dataframe(title, df):
+        wks = sh.worksheet_by_title(title)
+        wks.clear()
+        wks.set_dataframe(df,(1,1))
+
+    gb = GitBranches(config, git_repo, reference_date)
+    prs = GitHubPullRequests(config, github_api, reference_date)
+
+    dump_dataframe('raw_data_full', output_df)
+    dump_dataframe('raw_data_branches', gb.load_dataframe())
+    dump_dataframe('raw_data_pull_requests', prs.load_dataframe())
+
 
 if __name__ == '__main__':
     create_report()
