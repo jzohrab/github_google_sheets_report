@@ -56,8 +56,9 @@ def create_report():
     ]
     output_df = df[cols]
     gc = pygsheets.authorize()
-    sh = gc.open('branches_and_prs')
-    wks = sh.worksheet_by_title('raw_data')
+    sh = gc.open('klick-genome repo')
+    wks = sh.worksheet_by_title('raw_branch_data')
+    wks.clear()
     wks.set_dataframe(output_df,(1,1))
 
 if __name__ == '__main__':
