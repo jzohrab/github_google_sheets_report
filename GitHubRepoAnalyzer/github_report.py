@@ -37,38 +37,9 @@ class GitHubReport:
         d = self.github_datetime_to_date(s)
         return TimeUtils.days_elapsed(self.reference_date, d)
 
-    def git_date_to_date(self, s):
-        d = datetime.datetime.strptime(s, "%Y-%m-%d")
-        toronto = pytz.timezone('America/Toronto')
-        return pytz.utc.localize(d)
-
-    def git_days_ago(self, s):
-        if s is None:
-            return None
-        d = self.git_date_to_date(s)
-        return TimeUtils.human_elapsed_time(self.reference_date, d)
-
-    def git_days_elapsed(self, s):
-        if s is None:
-            return None
-        d = self.git_date_to_date(s)
-        return TimeUtils.days_elapsed(self.reference_date, d)
-
     def build_dataframe(self):
-        git_branches = GitBranches(self.config, self.git_repo, self.reference_date).load_data()
-        branch_columns = [
-            'branch',
-            'ahead',
-            'behind',
-            'authors',
-            'latest_commit_date'
-        ]
-        branch_df = pandas.DataFrame(git_branches, columns = branch_columns)
-        for f in ['authors']:
-            branch_df[f + '_concat'] = list(map(lambda s: ', '.join(s), branch_df[f]))
-            branch_df[f + '_count'] = list(map(lambda s: len(s), branch_df[f]))
-        branch_df['commit_age_days'] = list(map(lambda d: self.git_days_elapsed(d), branch_df['latest_commit_date']))
-        branch_df['commit_days_ago'] = list(map(lambda d: self.git_days_ago(d), branch_df['latest_commit_date']))
+        gb = GitBranches(self.config, self.git_repo, self.reference_date)
+        branch_df = gb.load_dataframe()
 
         prs = GitHubPullRequests(self.config, self.github_api).load_data()
         pr_columns = [

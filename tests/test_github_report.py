@@ -45,8 +45,5 @@ class GitHubReportTestSuite(unittest.TestCase):
             expected = f.read()
         self.assertEqual(actual.strip(), expected.strip())
 
-    def test_git_days_ago(self):
-        self.assertEqual(self.ghr.git_days_elapsed('2017-10-27'), 2)
-
 if __name__ == '__main__':
     unittest.main()

@@ -41,6 +41,9 @@ class GitBranchesTestSuite(unittest.TestCase):
         expected = json.dumps(expected_data, indent=2, sort_keys=True)
         self.assertEqual(actual, expected)
 
+    def test_git_days_ago(self):
+        self.assertEqual(self.branch_report.git_days_elapsed('2017-10-27'), 2)
+
     def test_dataframe_works(self):
         df = self.branch_report.load_dataframe()
         # If we reach here, we're ok.
