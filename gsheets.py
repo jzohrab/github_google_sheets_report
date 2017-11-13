@@ -76,7 +76,8 @@ def create_report():
         'commit_age_days',
         'commit_days_ago'
     ]
-    dump_dataframe('raw_data_branches', gb.load_dataframe(), cols)
+    df = gb.load_dataframe().sort_values(by='commit_age_days', ascending=False)
+    dump_dataframe('raw_data_branches', df, cols)
 
     cols = [
         'number',
@@ -91,7 +92,8 @@ def create_report():
         'mergeable',
         'status'
     ]
-    dump_dataframe('raw_data_pull_requests', prs.load_dataframe(), cols)
+    df = prs.load_dataframe().sort_values(by='pr_age_days', ascending=False)
+    dump_dataframe('raw_data_pull_requests', df, cols)
 
 
 if __name__ == '__main__':
