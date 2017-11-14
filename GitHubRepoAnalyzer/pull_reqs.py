@@ -37,12 +37,22 @@ class GitHubApi:
         with open(cachefile, 'wt') as out:
             json.dump(data, out, sort_keys=True, indent=4, separators=(',', ': '))
 
+    def _get_json_following_links(self, url, collect_response_json):
+        myauth=HTTPBasicAuth(self.account, self.token)
+        r = requests.head(url, auth = myauth)
+        resp = requests.get(url, auth = myauth)
+        collect_response_json += resp.json()
+
+        if 'next' in r.links:
+            url = r.links['next']['url']
+            print("Getting next url {url}".format(url=url))
+            self._get_json_following_links(url, collect_response_json)
+        return collect_response_json
 
     def get_json(self, url):
         """Gets data from the URL, and writes it to a file for subsequent use."""
-        myauth=HTTPBasicAuth(self.account, self.token)
-        resp = requests.get(url, auth = myauth)
-        ret = resp.json()
+        ret = []
+        self._get_json_following_links(url, ret)
         # self._hack_write_file(url, ret)  # Disabling for now.
         return ret
 
