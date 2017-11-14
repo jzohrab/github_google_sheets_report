@@ -51,7 +51,8 @@ class GitBranches:
         self.config = config
         self.git = git_repo
         self.reference_date = reference_date
-    
+        self.have_refreshed_repo = False
+
     def clean_author_name(self, s):
         """Semi-standardize author names where possible.
         e.g., my sample data had 'first-last' and
@@ -91,6 +92,8 @@ class GitBranches:
         return self.git.get_git_cmd_response(cmd)
     
     def get_branch_data(self, reference_branch, branch_name):
+        self._refresh_repo()
+
         commits_ahead = self.get_commits(reference_branch, branch_name)
         # print(commits_ahead)
     
@@ -116,14 +119,11 @@ class GitBranches:
             'authors': authors or []
             }
     
-    
-    def load_data(self):
-        dirname = self.config['localclone']['source_dir']
-        if (not os.path.exists(dirname) or not os.path.isdir(dirname)):
-            raise Exception('missing directory: ' + dirname)
-    
+    def _refresh_repo(self):
+        if (self.have_refreshed_repo):
+            return
+
         origin = self.config['localclone']['origin_name']
-    
         if (self.config['localclone']['do_fetch']):
             print("Fetching ...")
             cmd = "git fetch {origin}".format(origin = origin)
@@ -132,7 +132,16 @@ class GitBranches:
             print("Pruning ...")
             cmd = "git remote prune {origin}".format(origin = origin)
             self.git.get_git_cmd_response(cmd)
-        
+
+        self.have_refreshed_repo = True
+
+    def load_data(self):
+        dirname = self.config['localclone']['source_dir']
+        if (not os.path.exists(dirname) or not os.path.isdir(dirname)):
+            raise Exception('missing directory: ' + dirname)
+
+        self._refresh_repo()
+        origin = self.config['localclone']['origin_name']
         branches = []
         if ('branches' in self.config):
             branches = self.config['branches']
