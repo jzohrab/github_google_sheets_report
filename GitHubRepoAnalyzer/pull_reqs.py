@@ -38,10 +38,10 @@ class GitHubApi:
             json.dump(data, out, sort_keys=True, indent=4, separators=(',', ': '))
 
 
-    def get_json(self, url, params = None):
+    def get_json(self, url):
         """Gets data from the URL, and writes it to a file for subsequent use."""
         myauth=HTTPBasicAuth(self.account, self.token)
-        resp = requests.get(url, auth = myauth, params = params)
+        resp = requests.get(url, auth = myauth)
         ret = resp.json()
         # self._hack_write_file(url, ret)  # Disabling for now.
         return ret
@@ -141,13 +141,9 @@ class GitHubPullRequests:
         repo = c['repo']
         base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
         base_branch = self.config['develop_branch']
-        pr_params = {
-            'state': 'open',
-            'base': base_branch
-            }
         
-        url = "{base_url}/pulls".format(base_url=base_url)
-        all_pulls = self.github_api.get_json(url, params=pr_params)
+        url = "{base_url}/pulls?state=open&base={branch}".format(base_url=base_url, branch=base_branch)
+        all_pulls = self.github_api.get_json(url)
         pr_numbers = [pr['number'] for pr in all_pulls]
         
         # GitHub API doesn't return merge status in the regular "pulls" query;
