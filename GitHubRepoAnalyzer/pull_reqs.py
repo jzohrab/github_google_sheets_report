@@ -203,6 +203,14 @@ if __name__ == '__main__':
         sys.exit()
 
     api = GitHubApi(account, token)
-    pr = GitHubPullRequests(config, api)
-    print(json.dumps(pr.load_data(), indent=2, sort_keys=True))
+    pr = GitHubPullRequests(config, api, datetime.datetime.now())
+    # print(json.dumps(pr.load_data(), indent=2, sort_keys=True))
 
+    c = config['github']
+    api_endpoint = c['api_endpoint']
+    org = c['org']
+    repo = c['repo']
+    org = 'KlickInc'
+    repo = 'klick-genome'
+    url = "{api_endpoint}/repos/{org}/{repo}/branches".format(api_endpoint=api_endpoint, org=org,repo=repo)
+    print(json.dumps(api.get_json(url), indent=2, sort_keys=True))
