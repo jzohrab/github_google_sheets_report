@@ -50,5 +50,17 @@ class GitBranchesTestSuite(unittest.TestCase):
         # Higher-level integration tests will cover the accuracy ...
         # should move those tests down here.
 
+    def test_summary(self):
+        expected_data = {
+            'master_ahead_of_develop': 0
+        }
+        actual = json.dumps(self.branch_report.load_summary(), indent=2, sort_keys=True)
+        expected = json.dumps(expected_data, indent=2, sort_keys=True)
+        self.assertEqual(actual, expected)
+
+    def test_summary_dataframe(self):
+        d = self.branch_report.load_summary_dataframe()
+        # Sanity check only.
+
 if __name__ == '__main__':
     unittest.main()

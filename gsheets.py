@@ -33,12 +33,15 @@ def create_report():
     reference_date = pytz.utc.localize(reference_date)
 
     gc = pygsheets.authorize()
-    sh = gc.open('klick-genome repo')
+    sh = gc.open(config['google_sheets_filename'])
 
     def dump_dataframe(title, df, columns):
         wks = sh.worksheet_by_title(title)
         wks.clear()
-        wks.set_dataframe(df[columns],(1,1))
+        output = df
+        if columns:
+            output = df[columns]
+        wks.set_dataframe(output,(1,1))
 
     ghr = GitHubReport(config, git_repo, github_api, reference_date)
     gb = GitBranches(config, git_repo, reference_date)
@@ -95,6 +98,7 @@ def create_report():
     df = prs.load_dataframe().sort_values(by='pr_age_days', ascending=False)
     dump_dataframe('raw_data_pull_requests', df, cols)
 
+    dump_dataframe('raw_data_repo_summary', gb.load_summary_dataframe(), None)
 
 if __name__ == '__main__':
     create_report()

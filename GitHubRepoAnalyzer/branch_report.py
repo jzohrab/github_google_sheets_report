@@ -188,6 +188,27 @@ class GitBranches:
         df['commit_days_ago'] = list(map(lambda d: self.git_days_ago(d), df['latest_commit_date']))
         return df
 
+
+    def load_summary(self):
+        def full_branch_name(b):
+            origin = self.config['localclone']['origin_name']
+            return "{o}/{branch}".format(o=origin, branch=b)
+        dev = full_branch_name(self.config['develop_branch'])
+        master = full_branch_name(self.config['master_branch'])
+        data = self.get_branch_data(dev, master)
+        
+        ret = {
+            'master_ahead_of_develop': data['ahead']
+        }
+        # ret = [ [ 'master_ahead_of_develop', data['ahead'] ] ]
+        return ret
+
+    def load_summary_dataframe(self):
+        d = self.load_summary()
+        df = pandas.DataFrame(list(d.items()), columns=['key', 'value'])
+        return df
+
+
 if __name__ == '__main__':
     config = None
     with open('config.yml', 'r') as f:
