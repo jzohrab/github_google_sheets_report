@@ -90,7 +90,7 @@ class GitBranches:
         cmd = cmd.format(m=from_branch, b=to_branch)
         return self.git.get_git_cmd_response(cmd)
     
-    def get_branch_data(self, reference_branch, branch_name, origin):
+    def get_branch_data(self, reference_branch, branch_name):
         commits_ahead = self.get_commits(reference_branch, branch_name)
         # print(commits_ahead)
     
@@ -106,7 +106,8 @@ class GitBranches:
         # Expensive ... add if desired.
         # approx_diff_linecount =
         # `git diff #{master}...#{branch_name} | grep ^[+-] | wc -l`.strip
-    
+
+        origin = self.config['localclone']['origin_name']
         return {
             'branch': branch_name.replace("{o}/".format(o=origin), ''),
             'ahead': num_commits_ahead,
@@ -154,7 +155,7 @@ class GitBranches:
         branches = [b for b in branches if b != reference_branch and re.match(combined, b)]
         # print(branches)
         
-        data = [self.get_branch_data(reference_branch, b, origin) for b in branches]
+        data = [self.get_branch_data(reference_branch, b) for b in branches]
 
         # Note comparing things by string below, as comparing by
         # number seems to magically coerce the values of the hash to
