@@ -4,6 +4,10 @@
 # ignore generated reports
 *.txt
 
+# GSheets creds
+client_id.json
+client_secret.json
+sheets.googleapis.com-python.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
