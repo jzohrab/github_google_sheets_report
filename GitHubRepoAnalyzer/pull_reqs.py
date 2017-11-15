@@ -39,20 +39,22 @@ class GitHubApi:
 
     def _get_json_following_links(self, url, collect_response_json):
         myauth=HTTPBasicAuth(self.account, self.token)
-        r = requests.head(url, auth = myauth)
         resp = requests.get(url, auth = myauth)
-        collect_response_json += resp.json()
+        j = resp.json()
+        if type(j) is dict:
+            return [j]
 
+        collect_response_json += resp.json()
+        r = requests.head(url, auth = myauth)
         if 'next' in r.links:
             url = r.links['next']['url']
-            print("Getting next url {url}".format(url=url))
+            # print("Getting next url {url}".format(url=url))
             self._get_json_following_links(url, collect_response_json)
         return collect_response_json
 
     def get_json(self, url):
         """Gets data from the URL, and writes it to a file for subsequent use."""
-        ret = []
-        self._get_json_following_links(url, ret)
+        ret = self._get_json_following_links(url, [])
         # self._hack_write_file(url, ret)  # Disabling for now.
         return ret
 
@@ -65,6 +67,13 @@ class GitHubPullRequests:
         self.github_api = github_api
         self.reference_date = reference_date
 
+    # ---------------------------
+    # Branches
+    def get_branches(self):
+        return {}
+
+    # ---------------------------
+    # Pull requests
     def get_pr(self, base_url, number):
         def simplify(pr):
             return {
@@ -210,7 +219,12 @@ if __name__ == '__main__':
     api_endpoint = c['api_endpoint']
     org = c['org']
     repo = c['repo']
-    org = 'KlickInc'
-    repo = 'klick-genome'
+    # org = 'KlickInc'
+    # repo = 'klick-genome'
     url = "{api_endpoint}/repos/{org}/{repo}/branches".format(api_endpoint=api_endpoint, org=org,repo=repo)
-    print(json.dumps(api.get_json(url), indent=2, sort_keys=True))
+    # print(json.dumps(api.get_json(url), indent=2, sort_keys=True))
+
+    # url = "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/08708e05bdcd376b3489a421f9307f65175da924"
+    # print(json.dumps(api.get_json(url), indent=2, sort_keys=True))
+    
+    print(json.dumps(pr.get_branches(), indent=2, sort_keys=True))
