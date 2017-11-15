@@ -267,8 +267,28 @@ class GitHubPullRequests:
 
 
     def build_full_report(self):
-        pr_df = self.load_dataframe()
-        branch_df = self.get_branches_dataframe()
+        cols = [
+            'branch',
+            'number',
+            'title',
+            'url',
+            'user',
+            'updated_at',
+            'pr_age_days',
+            'approved_count',
+            'declined_count',
+            'mergeable',
+        ]
+        pr_df = self.load_dataframe()[cols]
+
+        cols = [
+            'branch',
+            'author',
+            'last_commit_date',
+            'last_commit_age',
+            'status'
+        ]
+        branch_df = self.get_branches_dataframe()[cols]
         data = pandas.merge(branch_df, pr_df, how='left', left_on=['branch'], right_on=['branch'])
         data.fillna(value='', inplace=True)
 
