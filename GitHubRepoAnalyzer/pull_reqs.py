@@ -146,6 +146,10 @@ class GitHubPullRequests:
     # ---------------------------
     # Pull requests
     def get_pr(self, base_url, number):
+        def fix_boolean(b):
+            if b:
+                return 'yes'
+            return 'no'
         def simplify(pr):
             return {
                 'branch': pr['head']['ref'],
@@ -154,7 +158,7 @@ class GitHubPullRequests:
                 'title': pr['title'],
                 'user': pr['user']['login'],
                 'updated_at': pr['updated_at'],
-                'mergeable': pr['mergeable']
+                'mergeable': fix_boolean(pr['mergeable'])
             }
         url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
         raw_pr = self.github_api.get_json(url)
