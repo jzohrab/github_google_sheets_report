@@ -67,7 +67,7 @@ class GitHubApi:
                 # print("Getting next url {url}".format(url=url))
                 self._get_json_following_links(url, j)
 
-        self._hack_write_file(url, j)  # Disabling for now.
+        # self._hack_write_file(url, j)  # Disabling for now.
         return j
 
 
