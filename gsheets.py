@@ -31,7 +31,7 @@ def create_report():
     gc = pygsheets.authorize()
     sh = gc.open(config['google_sheets_filename'])
 
-    def dump_dataframe(title, df, columns):
+    def dump_dataframe(title, df, columns = None):
         wks = sh.worksheet_by_title(title)
         wks.clear()
         output = df
@@ -41,51 +41,51 @@ def create_report():
 
     prs = GitHubPullRequests(config, github_api, reference_date)
 
-    cols = [
-        'branch',
-        'author',
-        'latest_commit_date',
-        'latest_commit_age',
-        'commit_days_ago',
-        'number',
-        'title',
-        'url',
-        'user',
-        'updated_at',
-        'pr_age_days',
-        'github_days_ago',
-        'approved_count',
-        'declined_count',
-        'mergeable',
-        'status',
-    ]
-    df = prs.build_dataframe()
-    dump_dataframe('raw_data_full', df, cols)
+    # cols = [
+    #     'branch',
+    #     'author',
+    #     'last_commit_date',
+    #     'last_commit_age',
+    #     'commit_days_ago',
+    #     'number',
+    #     'title',
+    #     'url',
+    #     'user',
+    #     'updated_at',
+    #     'pr_age_days',
+    #     'github_days_ago',
+    #     'approved_count',
+    #     'declined_count',
+    #     'mergeable',
+    #     'status',
+    # ]
+    # df = prs.build_full_report()
+    # dump_dataframe('raw_data_full', df)
 
     cols = [
         'branch',
         'author',
-        'latest_commit_date',
-        'latest_commit_age'
+        'last_commit_date',
+        'last_commit_age'
     ]
-    df = prs.get_branches_dataframe().sort_values(by='commit_age_days', ascending=False)
-    dump_dataframe('raw_data_branches', df, cols)
+    df = prs.get_branches_dataframe().sort_values(by='last_commit_age', ascending=False)
+    dump_dataframe('raw_data_branches', df)
 
-    cols = [
-        'number',
-        'title',
-        'url',
-        'user',
-        'updated_at',
-        'pr_age_days',
-        'github_days_ago',
-        'approved_count',
-        'declined_count',
-        'mergeable',
-        'status'
-    ]
-    df = prs.load_dataframe().sort_values(by='pr_age_days', ascending=False)
-    dump_dataframe('raw_data_pull_requests', df, cols)
+    # cols = [
+    #     'number',
+    #     'title',
+    #     'url',
+    #     'user',
+    #     'updated_at',
+    #     'pr_age_days',
+    #     'github_days_ago',
+    #     'approved_count',
+    #     'declined_count',
+    #     'mergeable',
+    #     'status'
+    # ]
+    # df = prs.load_dataframe().sort_values(by='pr_age_days', ascending=False)
+    # dump_dataframe('raw_data_pull_requests', df)
 
 
 if __name__ == '__main__':
