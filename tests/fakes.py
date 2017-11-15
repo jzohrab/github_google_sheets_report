@@ -34,6 +34,7 @@ class FakeGitHubApi:
         currdir = os.path.dirname(os.path.abspath(__file__))
         cachedir = os.path.join(currdir, 'data', 'fake_github_api_json')
         filename = url.translate({ord(c):'_' for c in "/:.?&="})
+        filename = filename.replace('https___api_github_com_repos_jeff-zohrab_demo_gitflow_', '')
         cachefile = os.path.join(cachedir, filename)
     
         with open(cachefile, 'r') as f:
