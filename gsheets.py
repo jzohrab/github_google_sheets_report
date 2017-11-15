@@ -31,60 +31,21 @@ def create_report():
     gc = pygsheets.authorize()
     sh = gc.open(config['google_sheets_filename'])
 
-    def dump_dataframe(title, df, columns = None):
+    def dump_dataframe(title, df):
         wks = sh.worksheet_by_title(title)
         wks.clear()
-        output = df
-        if columns:
-            output = df[columns]
-        wks.set_dataframe(output,(1,1))
+        wks.set_dataframe(df,(1,1))
 
     prs = GitHubPullRequests(config, github_api, reference_date)
 
-    cols = [
-        'branch',
-        'author',
-        'last_commit_date',
-        'last_commit_age',
-        'number',
-        'title',
-        'url',
-        'user',
-        'updated_at',
-        'pr_age_days',
-        'approved_count',
-        'declined_count',
-        'mergeable',
-        'status'
-    ]
     df = prs.build_full_report()
-    dump_dataframe('raw_data_full', df, cols)
+    dump_dataframe('raw_data_full', df)
 
-    cols = [
-        'branch',
-        'author',
-        'last_commit_date',
-        'last_commit_age',
-        'status'
-    ]
     df = prs.get_branches_dataframe().sort_values(by='last_commit_age', ascending=False)
-    dump_dataframe('branches', df, cols)
+    dump_dataframe('branches', df)
 
-    cols = [
-        'number',
-        'title',
-        'url',
-        'user',
-        'updated_at',
-        'pr_age_days',
-        'github_days_ago',
-        'approved_count',
-        'declined_count',
-        'mergeable',
-        'status'
-    ]
     df = prs.load_dataframe().sort_values(by='pr_age_days', ascending=False)
-    dump_dataframe('pull_reqs', df, cols)
+    dump_dataframe('pull_reqs', df)
 
 
 if __name__ == '__main__':

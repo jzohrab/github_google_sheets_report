@@ -139,6 +139,7 @@ class GitHubPullRequests:
             'status'
         ]
         df = pandas.DataFrame(self.get_branches(), columns = cols)
+        df.fillna(value='', inplace=True)
         return df
 
 
@@ -160,13 +161,19 @@ class GitHubPullRequests:
         pr = simplify(raw_pr)
     
         pr['status'] = self.get_last_status(raw_pr['statuses_url'])
-    
+        pr['pr_age_days'] = self.github_days_elapsed(pr['updated_at'])
+        pr['github_days_ago'] = self.github_days_ago(pr['updated_at'])
+
         reviews = self.get_reviews(base_url, number)
         approved = [r['user'] for r in reviews if r['state'] == 'APPROVED']
         declined = [r['user'] for r in reviews if r['state'] == 'CHANGES_REQUESTED']
-        pr['approved'] = approved
-        pr['declined'] = declined
-    
+        def add_review_stats(pr, key, userlist):
+            pr[key] = userlist
+            pr[key + '_concat'] = ', '.join(userlist)
+            pr[key + '_count'] = len(userlist)
+        add_review_stats(pr, 'approved', approved)
+        add_review_stats(pr, 'declined', declined)
+
         return pr
 
     def github_datetime_to_date(self, s):
@@ -240,7 +247,8 @@ class GitHubPullRequests:
         return prs
 
     def load_dataframe(self):
-        prs = self.load_data()
+        prs = pandas.DataFrame(self.load_data())
+
         pr_columns = [
             'branch',
             'number',
@@ -248,21 +256,16 @@ class GitHubPullRequests:
             'url',
             'user',
             'updated_at',
-            'declined',
+            'pr_age_days',
             'declined_concat',
             'declined_count',
-            'approved',
             'approved_concat',
             'approved_count',
             'mergeable',
             'status'
         ]
         df = pandas.DataFrame(prs, columns = pr_columns)
-        for f in ['approved', 'declined']:
-            df[f + '_concat'] = list(map(lambda s: ', '.join(s), df[f]))
-            df[f + '_count'] = list(map(lambda s: len(s), df[f]))
-        df['pr_age_days'] = list(map(lambda d: self.github_days_elapsed(d), df['updated_at']))
-        df['github_days_ago'] = list(map(lambda d: self.github_days_ago(d), df['updated_at']))
+        df.fillna(value='', inplace=True)
         return df
 
 
