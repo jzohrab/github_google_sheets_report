@@ -9,6 +9,7 @@ class FakeGitRepo:
         currdir = os.path.dirname(os.path.abspath(__file__))
         cachedir = os.path.join(currdir, 'data', 'fake_git_responses')
         filename = cmd.translate({ord(c):'_' for c in "/:. \"%=-"})
+        filename = filename.replace('__date_short___format___cd__an__', '')
         data = os.path.join(cachedir, filename)
         with open(data, 'r') as f:
             rawdata = f.read()
