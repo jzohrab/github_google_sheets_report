@@ -46,5 +46,16 @@ class PullRequestsTestSuite(unittest.TestCase):
         # Higher-level integration tests will cover the accuracy ...
         # should move those tests down here.
 
+    def test_branches(self):
+        currdir = os.path.dirname(os.path.abspath(__file__))
+        expected_file = os.path.join(currdir, 'data', 'expected_results', 'test_github_branches.json')
+        expected_data = None
+        with open(expected_file, 'r') as f:
+            expected_data = json.load(f)
+
+        actual = json.dumps(self.prs.get_branches(), indent=2, sort_keys=True)
+        expected = json.dumps(expected_data, indent=2, sort_keys=True)
+        self.assertEqual(actual, expected)
+
 if __name__ == '__main__':
     unittest.main()

@@ -52,12 +52,5 @@
     "behind": 0,
     "branch": "hotfix_other_branch",
     "latest_commit_date": "2017-10-26"
-  },
-  {
-    "ahead": 0,
-    "authors": [],
-    "behind": 4,
-    "branch": "master",
-    "latest_commit_date": null
   }
 ]

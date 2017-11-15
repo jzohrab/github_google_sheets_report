@@ -1,0 +1,92 @@
+{
+    "_links": {
+        "html": "https://github.com/jeff-zohrab/demo_gitflow/tree/hotfix_other_branch",
+        "self": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/branches/hotfix_other_branch"
+    },
+    "commit": {
+        "author": {
+            "avatar_url": "https://avatars2.githubusercontent.com/u/1637133?v=4",
+            "events_url": "https://api.github.com/users/jzohrab/events{/privacy}",
+            "followers_url": "https://api.github.com/users/jzohrab/followers",
+            "following_url": "https://api.github.com/users/jzohrab/following{/other_user}",
+            "gists_url": "https://api.github.com/users/jzohrab/gists{/gist_id}",
+            "gravatar_id": "",
+            "html_url": "https://github.com/jzohrab",
+            "id": 1637133,
+            "login": "jzohrab",
+            "organizations_url": "https://api.github.com/users/jzohrab/orgs",
+            "received_events_url": "https://api.github.com/users/jzohrab/received_events",
+            "repos_url": "https://api.github.com/users/jzohrab/repos",
+            "site_admin": false,
+            "starred_url": "https://api.github.com/users/jzohrab/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/jzohrab/subscriptions",
+            "type": "User",
+            "url": "https://api.github.com/users/jzohrab"
+        },
+        "comments_url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/08708e05bdcd376b3489a421f9307f65175da924/comments",
+        "commit": {
+            "author": {
+                "date": "2017-10-27T01:52:46Z",
+                "email": "jzohrab@gmail.com",
+                "name": "Jeff Zohrab"
+            },
+            "comment_count": 0,
+            "committer": {
+                "date": "2017-10-27T01:52:46Z",
+                "email": "jzohrab@gmail.com",
+                "name": "Jeff Zohrab"
+            },
+            "message": "Hotfix",
+            "tree": {
+                "sha": "94469cea954e982b521c435cf9ef201f74a74611",
+                "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/git/trees/94469cea954e982b521c435cf9ef201f74a74611"
+            },
+            "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/git/commits/08708e05bdcd376b3489a421f9307f65175da924",
+            "verification": {
+                "payload": null,
+                "reason": "unsigned",
+                "signature": null,
+                "verified": false
+            }
+        },
+        "committer": {
+            "avatar_url": "https://avatars2.githubusercontent.com/u/1637133?v=4",
+            "events_url": "https://api.github.com/users/jzohrab/events{/privacy}",
+            "followers_url": "https://api.github.com/users/jzohrab/followers",
+            "following_url": "https://api.github.com/users/jzohrab/following{/other_user}",
+            "gists_url": "https://api.github.com/users/jzohrab/gists{/gist_id}",
+            "gravatar_id": "",
+            "html_url": "https://github.com/jzohrab",
+            "id": 1637133,
+            "login": "jzohrab",
+            "organizations_url": "https://api.github.com/users/jzohrab/orgs",
+            "received_events_url": "https://api.github.com/users/jzohrab/received_events",
+            "repos_url": "https://api.github.com/users/jzohrab/repos",
+            "site_admin": false,
+            "starred_url": "https://api.github.com/users/jzohrab/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/jzohrab/subscriptions",
+            "type": "User",
+            "url": "https://api.github.com/users/jzohrab"
+        },
+        "html_url": "https://github.com/jeff-zohrab/demo_gitflow/commit/08708e05bdcd376b3489a421f9307f65175da924",
+        "parents": [
+            {
+                "html_url": "https://github.com/jeff-zohrab/demo_gitflow/commit/e8ec95704869213da76344071d6c453c7bc644cd",
+                "sha": "e8ec95704869213da76344071d6c453c7bc644cd",
+                "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/e8ec95704869213da76344071d6c453c7bc644cd"
+            }
+        ],
+        "sha": "08708e05bdcd376b3489a421f9307f65175da924",
+        "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/08708e05bdcd376b3489a421f9307f65175da924"
+    },
+    "name": "hotfix_other_branch",
+    "protected": false,
+    "protection": {
+        "enabled": false,
+        "required_status_checks": {
+            "contexts": [],
+            "enforcement_level": "off"
+        }
+    },
+    "protection_url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/branches/hotfix_other_branch/protection"
+}

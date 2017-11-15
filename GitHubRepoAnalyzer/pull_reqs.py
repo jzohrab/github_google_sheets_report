@@ -3,6 +3,7 @@ import json
 import sys
 import os
 import yaml
+import re
 import subprocess
 import pandas
 import datetime
@@ -53,10 +54,21 @@ class GitHubApi:
         return collect_response_json
 
     def get_json(self, url):
-        """Gets data from the URL, and writes it to a file for subsequent use."""
-        ret = self._get_json_following_links(url, [])
-        # self._hack_write_file(url, ret)  # Disabling for now.
-        return ret
+        """Gets data from the URL.  If is array, checks for pagination."""
+        myauth=HTTPBasicAuth(self.account, self.token)
+        resp = requests.get(url, auth = myauth)
+        j = resp.json()
+
+        # If it's an array, it might be paginated.
+        if type(j) is not dict:
+            r = requests.head(url, auth = myauth)
+            if 'next' in r.links:
+                url = r.links['next']['url']
+                # print("Getting next url {url}".format(url=url))
+                self._get_json_following_links(url, j)
+
+        self._hack_write_file(url, j)  # Disabling for now.
+        return j
 
 
 class GitHubPullRequests:
@@ -68,9 +80,52 @@ class GitHubPullRequests:
         self.reference_date = reference_date
 
     # ---------------------------
+
+    def get_branch_data(self, branch_name):
+        c = self.config['github']
+        api_endpoint = c['api_endpoint']
+        org = c['org']
+        repo = c['repo']
+        url = "{api_endpoint}/repos/{org}/{repo}/branches/{b}".format(
+            api_endpoint=api_endpoint, org=org, repo=repo, b = branch_name)
+        d = self.github_api.get_json(url)
+        c = d['commit']['commit']
+        status_url = "{api_endpoint}/repos/{org}/{repo}/commits/{ref}/statuses".format(
+            api_endpoint=api_endpoint, org=org, repo=repo, ref = d['commit']['sha'])
+        status = self.get_last_status(status_url)
+        return {
+          'branch': d['name'],
+          'sha': d['commit']['sha'],
+          'last_commit_date': c['committer']['date'],
+          'author': c['committer']['email'],
+          'status': status  
+        }
+
+
     # Branches
     def get_branches(self):
-        return {}
+        c = self.config['github']
+        api_endpoint = c['api_endpoint']
+        org = c['org']
+        repo = c['repo']
+        url = "{api_endpoint}/repos/{org}/{repo}/branches".format(api_endpoint=api_endpoint, org=org,repo=repo)
+        branches = [b['name'] for b in self.github_api.get_json(url)]
+
+        branch_regex = [ f for f in self.config['include'] ]
+        combined = "(" + ")|(".join(branch_regex) + ")"
+
+        reference_branch = self.config['develop_branch']
+        branches = [b for b in branches if b != reference_branch and re.match(combined, b)]
+        
+        data = [self.get_branch_data(b) for b in branches]
+
+        return data
+        # Note comparing things by string below, as comparing by
+        # number seems to magically coerce the values of the hash to
+        # decimals (e.g., b['ahead'] = 0.0).
+        # return [b for b in data if b['ahead'] != '0']
+
+
 
     # ---------------------------
     # Pull requests
@@ -221,7 +276,7 @@ if __name__ == '__main__':
     repo = c['repo']
     # org = 'KlickInc'
     # repo = 'klick-genome'
-    url = "{api_endpoint}/repos/{org}/{repo}/branches".format(api_endpoint=api_endpoint, org=org,repo=repo)
+    # url = "{api_endpoint}/repos/{org}/{repo}/branches".format(api_endpoint=api_endpoint, org=org,repo=repo)
     # print(json.dumps(api.get_json(url), indent=2, sort_keys=True))
 
     # url = "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/08708e05bdcd376b3489a421f9307f65175da924"

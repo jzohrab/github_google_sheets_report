@@ -2,7 +2,7 @@
 
 master_branch: master
 develop_branch: develop
-include: [ feature.*, hotfix.*, master ]
+include: [ feature.*, hotfix.* ]
 
 # GitHub
 github:
