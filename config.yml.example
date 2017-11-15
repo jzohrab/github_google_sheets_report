@@ -6,23 +6,6 @@ master_branch: master
 develop_branch: develop
 include: [ .*feature.*, .*hotfix.* ]
 
-## Use this to speed up run during development:
-# branches:
-#  - origin/1001520
-#  - origin/1005715
-
-# GitHub
-github:
-
-  api_endpoint: https://api.github.com
-  org: jeff-zohrab
-  repo: demo_gitflow
-
-# We need a local clone to pull some information down
-# which could be expensive to compute from the API
-# only.
-localclone:
-  source_dir: ../demo_gitflow
-  origin_name: origin
-  do_fetch: false
-  do_prune: false
+api_endpoint: https://api.github.com
+org: jeff-zohrab
+repo: demo_gitflow

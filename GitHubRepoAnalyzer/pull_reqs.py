@@ -82,10 +82,9 @@ class GitHubPullRequests:
     # ---------------------------
 
     def get_branch_data(self, branch_name):
-        c = self.config['github']
-        api_endpoint = c['api_endpoint']
-        org = c['org']
-        repo = c['repo']
+        api_endpoint = self.config['api_endpoint']
+        org = self.config['org']
+        repo = self.config['repo']
         url = "{api_endpoint}/repos/{org}/{repo}/branches/{b}".format(
             api_endpoint=api_endpoint, org=org, repo=repo, b = branch_name)
         d = self.github_api.get_json(url)
@@ -101,7 +100,7 @@ class GitHubPullRequests:
         return {
             'branch': d['name'],
             'sha': d['commit']['sha'],
-            'last_commit_date': commit_date,
+            'last_commit_date': self.github_datetime_to_date(commit_date).strftime('%Y-%m-%d'),
             'last_commit_age': age_days,
             'last_commit_days_ago': days_ago,
             'author': c['committer']['email'],
@@ -111,10 +110,9 @@ class GitHubPullRequests:
 
     # Branches
     def get_branches(self):
-        c = self.config['github']
-        api_endpoint = c['api_endpoint']
-        org = c['org']
-        repo = c['repo']
+        api_endpoint = self.config['api_endpoint']
+        org = self.config['org']
+        repo = self.config['repo']
         url = "{api_endpoint}/repos/{org}/{repo}/branches".format(api_endpoint=api_endpoint, org=org,repo=repo)
         branches = [b['name'] for b in self.github_api.get_json(url)]
 
@@ -133,7 +131,14 @@ class GitHubPullRequests:
         # return [b for b in data if b['ahead'] != '0']
 
     def get_branches_dataframe(self):
-        df = pandas.DataFrame(self.get_branches())
+        cols = [
+            'branch',
+            'last_commit_date',
+            'last_commit_age',
+            'author',
+            'status'
+        ]
+        df = pandas.DataFrame(self.get_branches(), columns = cols)
         return df
 
 
@@ -219,10 +224,9 @@ class GitHubPullRequests:
     
     
     def load_data(self):
-        c = self.config['github']
-        api_endpoint = c['api_endpoint']
-        org = c['org']
-        repo = c['repo']
+        api_endpoint = self.config['api_endpoint']
+        org = self.config['org']
+        repo = self.config['repo']
         base_url = "{api_endpoint}/repos/{org}/{repo}".format(api_endpoint=api_endpoint, org=org,repo=repo)
         base_branch = self.config['develop_branch']
         
@@ -262,6 +266,15 @@ class GitHubPullRequests:
         return df
 
 
+    def build_full_report(self):
+        pr_df = self.load_dataframe()
+        branch_df = self.get_branches_dataframe()
+        data = pandas.merge(branch_df, pr_df, how='left', left_on=['branch'], right_on=['branch'])
+        data.fillna(value='', inplace=True)
+
+        return data
+
+
 if __name__ == '__main__':
     config = None
     with open('config.yml', 'r') as f:
@@ -280,10 +293,9 @@ if __name__ == '__main__':
     pr = GitHubPullRequests(config, api, datetime.datetime.now())
     # print(json.dumps(pr.load_data(), indent=2, sort_keys=True))
 
-    c = config['github']
-    api_endpoint = c['api_endpoint']
-    org = c['org']
-    repo = c['repo']
+    api_endpoint = config['api_endpoint']
+    org = config['org']
+    repo = config['repo']
     # org = 'KlickInc'
     # repo = 'klick-genome'
     # url = "{api_endpoint}/repos/{org}/{repo}/branches".format(api_endpoint=api_endpoint, org=org,repo=repo)

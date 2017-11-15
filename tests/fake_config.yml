@@ -4,14 +4,6 @@ master_branch: master
 develop_branch: develop
 include: [ feature.*, hotfix.* ]
 
-# GitHub
-github:
-  api_endpoint: https://api.github.com
-  org: jeff-zohrab
-  repo: demo_gitflow
-
-localclone:
-  source_dir: ../demo_gitflow
-  origin_name: origin
-  do_fetch: false
-  do_prune: false
+api_endpoint: https://api.github.com
+org: jeff-zohrab
+repo: demo_gitflow

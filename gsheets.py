@@ -1,6 +1,4 @@
-from GitHubRepoAnalyzer.branch_report import GitBranches, GitRepo
 from GitHubRepoAnalyzer.pull_reqs import GitHubApi, GitHubPullRequests
-from GitHubRepoAnalyzer.github_report import GitHubReport
 
 import yaml
 import json
@@ -22,8 +20,6 @@ def create_report():
     with open('config.yml', 'r') as f:
         config = yaml.load(f)
 
-    git_repo = GitRepo(config['localclone']['source_dir'])
-
     token = get_valid_env_var('GITHUB_TOKEN')
     account = get_valid_env_var('GITHUB_TOKEN_ACCOUNT')
     github_api = GitHubApi(account, token)
@@ -43,17 +39,13 @@ def create_report():
             output = df[columns]
         wks.set_dataframe(output,(1,1))
 
-    ghr = GitHubReport(config, git_repo, github_api, reference_date)
-    gb = GitBranches(config, git_repo, reference_date)
     prs = GitHubPullRequests(config, github_api, reference_date)
 
     cols = [
         'branch',
-        'behind',
-        'ahead',
-        'authors_concat',
+        'author',
         'latest_commit_date',
-        'commit_age_days',
+        'latest_commit_age',
         'commit_days_ago',
         'number',
         'title',
@@ -67,19 +59,16 @@ def create_report():
         'mergeable',
         'status',
     ]
-    df = ghr.build_dataframe()
+    df = prs.build_dataframe()
     dump_dataframe('raw_data_full', df, cols)
 
     cols = [
         'branch',
-        'behind',
-        'ahead',
-        'authors_concat',
+        'author',
         'latest_commit_date',
-        'commit_age_days',
-        'commit_days_ago'
+        'latest_commit_age'
     ]
-    df = gb.load_dataframe().sort_values(by='commit_age_days', ascending=False)
+    df = prs.get_branches_dataframe().sort_values(by='commit_age_days', ascending=False)
     dump_dataframe('raw_data_branches', df, cols)
 
     cols = [
@@ -98,7 +87,6 @@ def create_report():
     df = prs.load_dataframe().sort_values(by='pr_age_days', ascending=False)
     dump_dataframe('raw_data_pull_requests', df, cols)
 
-    dump_dataframe('raw_data_repo_summary', gb.load_summary_dataframe(), None)
 
 if __name__ == '__main__':
     create_report()

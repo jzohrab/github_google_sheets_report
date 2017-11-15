@@ -61,5 +61,17 @@ class PullRequestsTestSuite(unittest.TestCase):
         df = self.prs.get_branches_dataframe()
         # If we get here, we're ok
 
+    def test_build_full_report(self):
+        df = self.prs.build_full_report()
+        actual = df.to_csv()
+        currdir = os.path.dirname(os.path.abspath(__file__))
+        expected_file = os.path.join(currdir, 'data', 'expected_results', 'test_github_report.csv')
+        expected = ''
+        # with open(expected_file, 'w') as f:
+        #     f.write(actual)
+        with open(expected_file, 'r') as f:
+            expected = f.read()
+        self.assertEqual(actual.strip(), expected.strip())
+
 if __name__ == '__main__':
     unittest.main()
