@@ -93,12 +93,19 @@ class GitHubPullRequests:
         status_url = "{api_endpoint}/repos/{org}/{repo}/commits/{ref}/statuses".format(
             api_endpoint=api_endpoint, org=org, repo=repo, ref = d['commit']['sha'])
         status = self.get_last_status(status_url)
+
+        commit_date = c['committer']['date']
+        age_days = self.github_days_elapsed(commit_date)
+        days_ago = self.github_days_ago(commit_date)
+        
         return {
-          'branch': d['name'],
-          'sha': d['commit']['sha'],
-          'last_commit_date': c['committer']['date'],
-          'author': c['committer']['email'],
-          'status': status  
+            'branch': d['name'],
+            'sha': d['commit']['sha'],
+            'last_commit_date': commit_date,
+            'last_commit_age': age_days,
+            'last_commit_days_ago': days_ago,
+            'author': c['committer']['email'],
+            'status': status  
         }
 
 
@@ -125,6 +132,9 @@ class GitHubPullRequests:
         # decimals (e.g., b['ahead'] = 0.0).
         # return [b for b in data if b['ahead'] != '0']
 
+    def get_branches_dataframe(self):
+        df = pandas.DataFrame(self.get_branches())
+        return df
 
 
     # ---------------------------

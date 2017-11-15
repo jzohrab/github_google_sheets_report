@@ -2,42 +2,54 @@
   {
     "author": "jzohrab@gmail.com",
     "branch": "feature/1_success_only",
+    "last_commit_age": 2,
     "last_commit_date": "2017-10-26T20:07:56Z",
+    "last_commit_days_ago": "2 days ago",
     "sha": "fbf2500be2711f8885368be097cc76a170030010",
     "status": "success"
   },
   {
     "author": "jzohrab@gmail.com",
     "branch": "feature/2_success_then_fail",
+    "last_commit_age": 2,
     "last_commit_date": "2017-10-26T20:11:46Z",
+    "last_commit_days_ago": "2 days ago",
     "sha": "8a0cc75180629fe2ba3468c6d2249fa14abd5472",
     "status": "error"
   },
   {
     "author": "jzohrab@gmail.com",
     "branch": "feature/3_fail_then_success",
+    "last_commit_age": 2,
     "last_commit_date": "2017-10-26T20:15:15Z",
+    "last_commit_days_ago": "2 days ago",
     "sha": "a0ddc4b152e9d6e5c7d82e18ac8a7f4d2adf0b85",
     "status": "success"
   },
   {
     "author": "jzohrab@gmail.com",
     "branch": "feature/4_success_then_abort",
+    "last_commit_age": 2,
     "last_commit_date": "2017-10-26T20:19:46Z",
+    "last_commit_days_ago": "2 days ago",
     "sha": "5d6e3bd76535b161180aa64f7aa8bdd51a9d15a2",
     "status": "success"
   },
   {
     "author": "jzohrab@gmail.com",
     "branch": "feature/44",
+    "last_commit_age": 8,
     "last_commit_date": "2017-10-20T18:59:06Z",
+    "last_commit_days_ago": "8 days ago",
     "sha": "944fb15930913b3f3a3a0aa736dab3d33e4451e5",
     "status": "success"
   },
   {
     "author": "jzohrab@gmail.com",
     "branch": "hotfix_other_branch",
+    "last_commit_age": 1,
     "last_commit_date": "2017-10-27T01:52:46Z",
+    "last_commit_days_ago": "1 day ago",
     "sha": "08708e05bdcd376b3489a421f9307f65175da924",
     "status": null
   }

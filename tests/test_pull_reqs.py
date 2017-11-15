@@ -57,5 +57,9 @@ class PullRequestsTestSuite(unittest.TestCase):
         expected = json.dumps(expected_data, indent=2, sort_keys=True)
         self.assertEqual(actual, expected)
 
+    def test_branches_dataframe(self):
+        df = self.prs.get_branches_dataframe()
+        # If we get here, we're ok
+
 if __name__ == '__main__':
     unittest.main()
