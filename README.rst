@@ -1,13 +1,7 @@
 GitHub Repo Analyzer
 ========================
 
-Utility scripts to work with large git repos.
-
-Contents (README files are in each subdirectory):
-
-* branch_report: old branches
-* large_files_report: large files that have been committed at any point in repo history
-
+Generate gsheets report.
 
 # Python
 
@@ -22,20 +16,12 @@ sudo pip install --upgrade virtualenv
 # eg. https://github.com/jeff-zohrab/devops-box.git
 ```
 
-## Create sample repo
-
-```
-./conflicts_report/make_test_repo.sh /tmp/zz_test_repo
-```
-
 ## Running
 
 ```
-# Make venv
-make PYTHON=`which python3` venv
 
+make venv                  # Make venv
 source venv/bin/activate   # start venv
-
 make init                  # load reqs
 
 python --version  # verify python version
