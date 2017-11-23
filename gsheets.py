@@ -10,7 +10,7 @@ import pandas
 import pygsheets
 
 
-def read_staff_list(config):
+def _read_staff_list(config):
     ret = []
     gc = pygsheets.authorize()
     sh = gc.open(config['team_list_sheet_filename'])
@@ -20,9 +20,20 @@ def read_staff_list(config):
     for index, row in df.iterrows():
         entry = {h: row[h] for h in headings}
         ret.append(entry)
-    print(df)
-    print(ret)
+    # print(df)
+    # print(ret)
     return ret
+
+def _get_staff_map(config, from_field, to_field):
+    staff = _read_staff_list(config)
+    ret = {m[from_field]: m[to_field] for m in staff if m[from_field] != ''}
+    return pandas.DataFrame(list(ret.items()), columns=[from_field, to_field])
+
+def git_author_to_team_map(config):
+    return _get_staff_map(config, 'git_email', 'team')
+
+def github_user_to_team_map(config):
+    return _get_staff_map(config, 'github_user', 'team')
 
 def create_report(config, github_creds):
     def get_valid_env_var(name):
@@ -50,14 +61,18 @@ def create_report(config, github_creds):
 
     prs = GitHubPullRequests(config, github_api, reference_date)
 
-    df = prs.build_full_report()
-    dump_dataframe('raw_data_full', df)
+    # df = prs.build_full_report()
+    # dump_dataframe('raw_data_full', df)
 
     df = prs.get_branches_dataframe().sort_values(by='last_commit_age', ascending=False)
-    dump_dataframe('branches', df)
+    data = pandas.merge(df, git_author_to_team_map(config), how='left', left_on=['author'], right_on=['git_email'])
+    data.fillna(value='', inplace=True)
+    dump_dataframe('branches', data)
 
     df = prs.load_dataframe().sort_values(by='pr_age_days', ascending=False)
-    dump_dataframe('pull_reqs', df)
+    data = pandas.merge(df, github_user_to_team_map(config), how='left', left_on=['user'], right_on=['github_user'])
+    data.fillna(value='', inplace=True)
+    dump_dataframe('pull_reqs', data)
 
 
 def parse_arguments():
@@ -84,5 +99,6 @@ if __name__ == '__main__':
     config = get_yml(args.configfile)
     github_creds = get_yml(args.githubcreds)
 
-    read_staff_list(config)
-    # create_report(config, github_creds)
+    # _read_staff_list(config)
+    # print(git_author_to_team_map(config))
+    create_report(config, github_creds)
