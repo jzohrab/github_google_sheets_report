@@ -10,6 +10,20 @@ import pandas
 import pygsheets
 
 
+def read_staff_list(config):
+    ret = []
+    gc = pygsheets.authorize()
+    sh = gc.open(config['team_list_sheet_filename'])
+    wks = sh.worksheet_by_title('staff')
+    df = wks.get_as_df()
+    headings = ['canonical_name', 'git_email', 'github_user', 'slack_username', 'team']
+    for index, row in df.iterrows():
+        entry = {h: row[h] for h in headings}
+        ret.append(entry)
+    print(df)
+    print(ret)
+    return ret
+
 def create_report(config, github_creds):
     def get_valid_env_var(name):
         ret = os.environ[name]
@@ -70,4 +84,5 @@ if __name__ == '__main__':
     config = get_yml(args.configfile)
     github_creds = get_yml(args.githubcreds)
 
-    create_report(config, github_creds)
+    read_staff_list(config)
+    # create_report(config, github_creds)
