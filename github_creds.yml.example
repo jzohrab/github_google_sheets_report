@@ -1,0 +1,4 @@
+# Copy this file to your own github_creds.yml and edit as needed.
+
+account_name: your-account-name
+github_token: personal-access-token

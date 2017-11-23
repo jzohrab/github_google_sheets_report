@@ -1,5 +1,6 @@
 from GitHubRepoAnalyzer.pull_reqs import GitHubApi, GitHubPullRequests
 
+import argparse
 import yaml
 import json
 import os
@@ -8,7 +9,8 @@ import pytz
 import pandas
 import pygsheets
 
-def create_report():
+
+def create_report(config, github_creds):
     def get_valid_env_var(name):
         ret = os.environ[name]
         if (ret is None or ret.strip() == ''):
@@ -16,12 +18,8 @@ def create_report():
             sys.exit()
         return ret
 
-    config = None
-    with open('config.yml', 'r') as f:
-        config = yaml.load(f)
-
-    token = get_valid_env_var('GITHUB_TOKEN')
-    account = get_valid_env_var('GITHUB_TOKEN_ACCOUNT')
+    account = github_creds['account_name']
+    token = github_creds['github_token']
     github_api = GitHubApi(account, token)
 
     reference_date = datetime.datetime.now()
@@ -48,5 +46,28 @@ def create_report():
     dump_dataframe('pull_reqs', df)
 
 
+def parse_arguments():
+    """Get command line args."""
+    parser = argparse.ArgumentParser(description='Generate google sheets from github data.')
+    parser.add_argument(
+        '--config', dest='configfile', default='config.yml',
+        help='Path to config file (default is config.yml)'
+    )
+    parser.add_argument(
+        '--creds', dest='githubcreds', default='github_creds.yml',
+        help='Path to github credentials file (default is github_creds.yml)'
+    )
+    args = parser.parse_args()
+    return args
+
 if __name__ == '__main__':
-    create_report()
+    args = parse_arguments()
+
+    def get_yml(yml_path):
+        with open(yml_path, 'r') as f:
+            return yaml.load(f)
+
+    config = get_yml(args.configfile)
+    github_creds = get_yml(args.githubcreds)
+
+    create_report(config, github_creds)
