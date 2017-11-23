@@ -103,7 +103,7 @@ class GitHubPullRequests:
             'last_commit_date': self.github_datetime_to_date(commit_date).strftime('%Y-%m-%d'),
             'last_commit_age': age_days,
             'last_commit_days_ago': days_ago,
-            'author': c['committer']['email'],
+            'author': c['author']['email'],
             'status': status  
         }
 
