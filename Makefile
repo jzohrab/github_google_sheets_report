@@ -6,7 +6,6 @@
 # "OSError: [Errno 71] Protocol error:" (ref
 # https://github.com/gratipay/gratipay.com/issues/2327)
 venv:
-	rm -rf venv
 	virtualenv -p `which python3` --always-copy venv
 	@echo '**********************'
 	@echo Now please run the following:
