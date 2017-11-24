@@ -1,6 +1,7 @@
 # Copy this file to your own config.yml and edit as needed.
 
 google_sheets_filename: demo_gitflow_dashboard
+team_list_sheet_filename: demo_gitflow_dashboard_team
 
 master_branch: master
 develop_branch: develop
