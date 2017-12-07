@@ -1,4 +1,4 @@
-.PHONY: venv init test clean run
+.PHONY: venv init test clean
 
 # Create virtual env with specific python
 # (assuming that the machine/vm already has python3).
