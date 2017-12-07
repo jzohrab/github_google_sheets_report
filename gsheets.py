@@ -99,6 +99,4 @@ if __name__ == '__main__':
     config = get_yml(args.configfile)
     github_creds = get_yml(args.githubcreds)
 
-    # _read_staff_list(config)
-    # print(git_author_to_team_map(config))
     create_report(config, github_creds)
