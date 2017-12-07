@@ -12,7 +12,7 @@ import pygsheets
 
 def _read_staff_list(config):
     ret = []
-    gc = pygsheets.authorize()
+    gc = pygsheets.authorize(no_cache=True)
     sh = gc.open(config['team_list_sheet_filename'])
     wks = sh.worksheet_by_title('staff')
     df = wks.get_as_df()
@@ -52,7 +52,7 @@ def create_report(config, github_creds):
     reference_date = pytz.utc.localize(reference_date)
 
     print('Authorizing google sheets')
-    gc = pygsheets.authorize()
+    gc = pygsheets.authorize(no_cache=True)
     sh = gc.open(config['google_sheets_filename'])
 
     def dump_dataframe(title, df):
