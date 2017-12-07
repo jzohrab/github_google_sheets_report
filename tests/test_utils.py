@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # import context
-from .context import GitHubRepoAnalyzer as ghr
-from GitHubRepoAnalyzer.utils import TimeUtils
+from .context import GitHubReport as ghr
+from GitHubReport.utils import TimeUtils
 
 import unittest
 import os

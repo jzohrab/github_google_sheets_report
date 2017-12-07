@@ -1,4 +1,4 @@
-from GitHubRepoAnalyzer.pull_reqs import GitHubApi, GitHubPullRequests
+from GitHubReport.pull_reqs import GitHubApi, GitHubPullRequests
 
 import argparse
 import yaml

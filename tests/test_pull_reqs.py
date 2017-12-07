@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .context import GitHubRepoAnalyzer
-from GitHubRepoAnalyzer import pull_reqs
+from .context import GitHubReport
+from GitHubReport import pull_reqs
 
 from .fakes import FakeGitHubApi
 
