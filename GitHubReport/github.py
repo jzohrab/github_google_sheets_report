@@ -71,8 +71,8 @@ class GitHubApi:
         return j
 
 
-class GitHubPullRequests:
-    """Extracts and aggregates GitHub pull requests for a high-level overview."""
+class GitHubReportSource:
+    """Extracts and aggregates GitHub data for a high-level overview."""
 
     def __init__(self, config, github_api, reference_date):
         self.config = config
@@ -81,7 +81,7 @@ class GitHubPullRequests:
 
     # ---------------------------
 
-    def get_branch_data(self, branch_name):
+    def _get_branch_data(self, branch_name):
         api_endpoint = self.config['api_endpoint']
         org = self.config['org']
         repo = self.config['repo']
@@ -122,7 +122,7 @@ class GitHubPullRequests:
         reference_branch = self.config['develop_branch']
         branches = [b for b in branches if b != reference_branch and re.match(combined, b)]
         
-        data = [self.get_branch_data(b) for b in branches]
+        data = [self._get_branch_data(b) for b in branches]
 
         return data
         # Note comparing things by string below, as comparing by
@@ -145,7 +145,7 @@ class GitHubPullRequests:
 
     # ---------------------------
     # Pull requests
-    def get_pr(self, base_url, number):
+    def _get_pr(self, base_url, number):
         def fix_boolean(b):
             if b:
                 return 'yes'
@@ -234,7 +234,7 @@ class GitHubPullRequests:
         return [simplify(r) for r in self.github_api.get_json(url)]
     
     
-    def load_data(self):
+    def get_pull_requests(self):
         api_endpoint = self.config['api_endpoint']
         org = self.config['org']
         repo = self.config['repo']
@@ -247,11 +247,11 @@ class GitHubPullRequests:
         
         # GitHub API doesn't return merge status in the regular "pulls" query;
         # have to first get the list of PRs and then get each PR individually.
-        prs = [self.get_pr(base_url, n) for n in pr_numbers]
+        prs = [self._get_pr(base_url, n) for n in pr_numbers]
         return prs
 
-    def load_dataframe(self):
-        prs = pandas.DataFrame(self.load_data())
+    def get_pull_requests_dataframe(self):
+        prs = pandas.DataFrame(self.get_pull_requests())
 
         pr_columns = [
             'branch',
@@ -271,64 +271,3 @@ class GitHubPullRequests:
         df = pandas.DataFrame(prs, columns = pr_columns)
         df.fillna(value='', inplace=True)
         return df
-
-
-    def build_full_report(self):
-        cols = [
-            'branch',
-            'number',
-            'title',
-            'url',
-            'user',
-            'updated_at',
-            'pr_age_days',
-            'approved_count',
-            'declined_count',
-            'mergeable',
-        ]
-        pr_df = self.load_dataframe()[cols]
-
-        cols = [
-            'branch',
-            'author',
-            'last_commit_date',
-            'last_commit_age',
-            'status'
-        ]
-        branch_df = self.get_branches_dataframe()[cols]
-        data = pandas.merge(branch_df, pr_df, how='left', left_on=['branch'], right_on=['branch'])
-        data.fillna(value='', inplace=True)
-
-        return data
-
-
-if __name__ == '__main__':
-    config = None
-    with open('config.yml', 'r') as f:
-        config = yaml.load(f)
-
-    token=os.environ['GITHUB_TOKEN']
-    account=os.environ['GITHUB_TOKEN_ACCOUNT']
-    if (token is None or token.strip() == ''):
-        print("Missing GITHUB_TOKEN env variable")
-        sys.exit()
-    if (account is None or account.strip() == ''):
-        print("Missing GITHUB_TOKEN_ACCOUNT env variable")
-        sys.exit()
-
-    api = GitHubApi(account, token)
-    pr = GitHubPullRequests(config, api, datetime.datetime.now())
-    # print(json.dumps(pr.load_data(), indent=2, sort_keys=True))
-
-    api_endpoint = config['api_endpoint']
-    org = config['org']
-    repo = config['repo']
-    # org = 'KlickInc'
-    # repo = 'klick-genome'
-    # url = "{api_endpoint}/repos/{org}/{repo}/branches".format(api_endpoint=api_endpoint, org=org,repo=repo)
-    # print(json.dumps(api.get_json(url), indent=2, sort_keys=True))
-
-    # url = "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/08708e05bdcd376b3489a421f9307f65175da924"
-    # print(json.dumps(api.get_json(url), indent=2, sort_keys=True))
-    
-    print(json.dumps(pr.get_branches(), indent=2, sort_keys=True))

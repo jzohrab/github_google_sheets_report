@@ -1,4 +1,4 @@
-from .github import GitHubApi, GitHubPullRequests
+from .github import GitHubApi, GitHubReportSource
 
 import argparse
 import yaml
@@ -61,16 +61,16 @@ def create_report(config, github_creds):
         wks.set_dataframe(df,(1,1))
 
     print('Creating report:')
-    prs = GitHubPullRequests(config, github_api, reference_date)
+    report_source = GitHubReportSource(config, github_api, reference_date)
 
     print('  Branches')
-    df = prs.get_branches_dataframe().sort_values(by='last_commit_age', ascending=False)
+    df = report_source.get_branches_dataframe().sort_values(by='last_commit_age', ascending=False)
     data = pandas.merge(df, git_author_to_team_map(config), how='left', left_on=['author'], right_on=['git_email'])
     data.fillna(value='', inplace=True)
     dump_dataframe('branches', data)
 
     print('  Pull requests')
-    df = prs.load_dataframe().sort_values(by='pr_age_days', ascending=False)
+    df = report_source.get_pull_requests_dataframe().sort_values(by='pr_age_days', ascending=False)
     data = pandas.merge(df, github_user_to_team_map(config), how='left', left_on=['user'], right_on=['github_user'])
     data.fillna(value='', inplace=True)
     dump_dataframe('pull_reqs', data)
