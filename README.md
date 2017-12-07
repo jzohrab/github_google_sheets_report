@@ -6,10 +6,16 @@ and pull requests to a Google Sheets spreadsheet.
 
 ## A sample run
 
-    $ python generate_report.py --config klick-genome.config.yml
+    make venv
+    source venv/bin/activate
+    make init
+    python generate_report.py --config klick-genome.config.yml
 
 The klick-genome.config.yml is created per "Configuration" below.
 
+Optionally (runnable in Git Bash):
+
+    ./run_update.sh
 
 # System requirements
 
