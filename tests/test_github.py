@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .context import GitHubReport
-from GitHubReport import pull_reqs
+from GitHubReport import github
 
 from .fakes import FakeGitHubApi
 
@@ -26,7 +26,7 @@ class PullRequestsTestSuite(unittest.TestCase):
         reference_date = datetime.datetime.strptime('2017-10-29', "%Y-%m-%d")
         toronto = pytz.timezone('America/Toronto')
         reference_date = pytz.utc.localize(reference_date)
-        self.prs = pull_reqs.GitHubPullRequests(config, fake_api, reference_date)
+        self.prs = github.GitHubPullRequests(config, fake_api, reference_date)
         self.maxDiff = None
 
     def test_data_is_processed(self):
