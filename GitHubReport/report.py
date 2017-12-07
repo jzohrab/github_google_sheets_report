@@ -8,7 +8,7 @@ import datetime
 import pytz
 import pandas
 import pygsheets
-
+import sys
 
 def _read_staff_list(config):
     ret = []
@@ -51,7 +51,9 @@ def create_report(config, github_creds):
     toronto = pytz.timezone('America/Toronto')
     reference_date = pytz.utc.localize(reference_date)
 
+    print('Start.')
     print('Authorizing google sheets')
+    sys.stdout.flush()
     gc = pygsheets.authorize(no_cache=True)
     sh = gc.open(config['google_sheets_filename'])
 
@@ -61,18 +63,22 @@ def create_report(config, github_creds):
         wks.set_dataframe(df,(1,1))
 
     print('Creating report:')
+    sys.stdout.flush()
     report_source = GitHubReportSource(config, github_api, reference_date)
 
     print('  Branches')
+    sys.stdout.flush()
     df = report_source.get_branches_dataframe().sort_values(by='last_commit_age', ascending=False)
     data = pandas.merge(df, git_author_to_team_map(config), how='left', left_on=['author'], right_on=['git_email'])
     data.fillna(value='', inplace=True)
     dump_dataframe('branches', data)
 
     print('  Pull requests')
+    sys.stdout.flush()
     df = report_source.get_pull_requests_dataframe().sort_values(by='pr_age_days', ascending=False)
     data = pandas.merge(df, github_user_to_team_map(config), how='left', left_on=['user'], right_on=['github_user'])
     data.fillna(value='', inplace=True)
     dump_dataframe('pull_reqs', data)
 
     print('Done.')
+    sys.stdout.flush()
