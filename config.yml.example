@@ -1,18 +1,19 @@
 # Copy this file to your own config.yml and edit as needed.
 
-# Dir to check, relative to this program:
-:source_dir: ../klick-genome
+# The sheet that will be used for the report output.
+google_sheets_filename: demo_gitflow_dashboard
 
-# Repo info:
-:origin_name: origin
-:master_branch: origin/master
+# A separate sheet which contains a list of staff members, used to
+# correlate staff with their GitHub account, Git commit author email,
+# etc.
+team_list_sheet_filename: demo_gitflow_dashboard_team
 
-# Fetch/prune before analyzing?
-# (Set to false for a faster run)
-:do_fetch: true
-:do_prune: true
+# Branches to use for the report.
+master_branch: master
+develop_branch: develop
+include: [ .*feature.*, .*hotfix.* ]
 
-## Use this to speed up run during development:
-:sample_branches:
-  - origin/1001520
-  - origin/1005715
+# API information.
+api_endpoint: https://api.github.com
+org: jeff-zohrab
+repo: demo_gitflow

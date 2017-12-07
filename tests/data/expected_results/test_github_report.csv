@@ -1,0 +1,7 @@
+,branch,author,last_commit_date,last_commit_age,status,number,title,url,user,updated_at,pr_age_days,approved_count,declined_count,mergeable
+0,feature/1_success_only,jzohrab@gmail.com,2017-10-26,2,success,5,success,https://github.com/jeff-zohrab/demo_gitflow/pull/5,jeff-zohrab,2017-10-26T20:28:25Z,2,0,0,yes
+1,feature/2_success_then_fail,jzohrab@gmail.com,2017-10-26,2,error,6,Feature/2 success then fail,https://github.com/jeff-zohrab/demo_gitflow/pull/6,jeff-zohrab,2017-10-26T21:06:19Z,2,0,1,yes
+2,feature/3_fail_then_success,jzohrab@gmail.com,2017-10-26,2,success,7,Feature/3 fail then success,https://github.com/jeff-zohrab/demo_gitflow/pull/7,jeff-zohrab,2017-10-28T02:28:19Z,0,1,0,yes
+3,feature/4_success_then_abort,jzohrab@gmail.com,2017-10-26,2,success,8,Passes.,https://github.com/jeff-zohrab/demo_gitflow/pull/8,jeff-zohrab,2017-10-26T21:05:22Z,2,0,0,yes
+4,feature/44,jzohrab@gmail.com,2017-10-20,8,success,4,44: 44,https://github.com/jeff-zohrab/demo_gitflow/pull/4,jeff-zohrab,2017-10-20T19:00:00Z,8,0,0,no
+5,hotfix_other_branch,jzohrab@gmail.com,2017-10-26,1,,9,Hotfix,https://github.com/jeff-zohrab/demo_gitflow/pull/9,jeff-zohrab,2017-10-27T02:27:39Z,1,0,0,yes

@@ -1,0 +1,9 @@
+# Fake configuration for the tests.
+
+master_branch: master
+develop_branch: develop
+include: [ feature.*, hotfix.* ]
+
+api_endpoint: https://api.github.com
+org: jeff-zohrab
+repo: demo_gitflow

@@ -1,0 +1,58 @@
+[
+    {
+        "commit": {
+            "sha": "e8ec95704869213da76344071d6c453c7bc644cd",
+            "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/e8ec95704869213da76344071d6c453c7bc644cd"
+        },
+        "name": "develop"
+    },
+    {
+        "commit": {
+            "sha": "fbf2500be2711f8885368be097cc76a170030010",
+            "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/fbf2500be2711f8885368be097cc76a170030010"
+        },
+        "name": "feature/1_success_only"
+    },
+    {
+        "commit": {
+            "sha": "8a0cc75180629fe2ba3468c6d2249fa14abd5472",
+            "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/8a0cc75180629fe2ba3468c6d2249fa14abd5472"
+        },
+        "name": "feature/2_success_then_fail"
+    },
+    {
+        "commit": {
+            "sha": "a0ddc4b152e9d6e5c7d82e18ac8a7f4d2adf0b85",
+            "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/a0ddc4b152e9d6e5c7d82e18ac8a7f4d2adf0b85"
+        },
+        "name": "feature/3_fail_then_success"
+    },
+    {
+        "commit": {
+            "sha": "5d6e3bd76535b161180aa64f7aa8bdd51a9d15a2",
+            "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/5d6e3bd76535b161180aa64f7aa8bdd51a9d15a2"
+        },
+        "name": "feature/4_success_then_abort"
+    },
+    {
+        "commit": {
+            "sha": "944fb15930913b3f3a3a0aa736dab3d33e4451e5",
+            "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/944fb15930913b3f3a3a0aa736dab3d33e4451e5"
+        },
+        "name": "feature/44"
+    },
+    {
+        "commit": {
+            "sha": "08708e05bdcd376b3489a421f9307f65175da924",
+            "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/08708e05bdcd376b3489a421f9307f65175da924"
+        },
+        "name": "hotfix_other_branch"
+    },
+    {
+        "commit": {
+            "sha": "1109a50db92bec65ac34c057fde1e47d57131b6f",
+            "url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/commits/1109a50db92bec65ac34c057fde1e47d57131b6f"
+        },
+        "name": "master"
+    }
+]

@@ -1,0 +1,39 @@
+[
+    {
+        "_links": {
+            "html": {
+                "href": "https://github.com/jeff-zohrab/demo_gitflow/pull/6#pullrequestreview-72340922"
+            },
+            "pull_request": {
+                "href": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/pulls/6"
+            }
+        },
+        "author_association": "COLLABORATOR",
+        "body": "Decline",
+        "commit_id": "8a0cc75180629fe2ba3468c6d2249fa14abd5472",
+        "html_url": "https://github.com/jeff-zohrab/demo_gitflow/pull/6#pullrequestreview-72340922",
+        "id": 72340922,
+        "pull_request_url": "https://api.github.com/repos/jeff-zohrab/demo_gitflow/pulls/6",
+        "state": "CHANGES_REQUESTED",
+        "submitted_at": "2017-10-26T21:06:19Z",
+        "user": {
+            "avatar_url": "https://avatars0.githubusercontent.com/u/9610251?v=4",
+            "events_url": "https://api.github.com/users/jbarryqa/events{/privacy}",
+            "followers_url": "https://api.github.com/users/jbarryqa/followers",
+            "following_url": "https://api.github.com/users/jbarryqa/following{/other_user}",
+            "gists_url": "https://api.github.com/users/jbarryqa/gists{/gist_id}",
+            "gravatar_id": "",
+            "html_url": "https://github.com/jbarryqa",
+            "id": 9610251,
+            "login": "jbarryqa",
+            "organizations_url": "https://api.github.com/users/jbarryqa/orgs",
+            "received_events_url": "https://api.github.com/users/jbarryqa/received_events",
+            "repos_url": "https://api.github.com/users/jbarryqa/repos",
+            "site_admin": false,
+            "starred_url": "https://api.github.com/users/jbarryqa/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/jbarryqa/subscriptions",
+            "type": "User",
+            "url": "https://api.github.com/users/jbarryqa"
+        }
+    }
+]
