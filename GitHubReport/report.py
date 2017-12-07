@@ -51,6 +51,7 @@ def create_report(config, github_creds):
     toronto = pytz.timezone('America/Toronto')
     reference_date = pytz.utc.localize(reference_date)
 
+    print('Authorizing google sheets')
     gc = pygsheets.authorize()
     sh = gc.open(config['google_sheets_filename'])
 
@@ -59,17 +60,19 @@ def create_report(config, github_creds):
         wks.clear()
         wks.set_dataframe(df,(1,1))
 
+    print('Creating report:')
     prs = GitHubPullRequests(config, github_api, reference_date)
 
-    # df = prs.build_full_report()
-    # dump_dataframe('raw_data_full', df)
-
+    print('  Branches')
     df = prs.get_branches_dataframe().sort_values(by='last_commit_age', ascending=False)
     data = pandas.merge(df, git_author_to_team_map(config), how='left', left_on=['author'], right_on=['git_email'])
     data.fillna(value='', inplace=True)
     dump_dataframe('branches', data)
 
+    print('  Pull requests')
     df = prs.load_dataframe().sort_values(by='pr_age_days', ascending=False)
     data = pandas.merge(df, github_user_to_team_map(config), how='left', left_on=['user'], right_on=['github_user'])
     data.fillna(value='', inplace=True)
     dump_dataframe('pull_reqs', data)
+
+    print('Done.')
