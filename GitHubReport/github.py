@@ -157,7 +157,7 @@ class GitHubReportSource:
                 'url': pr['html_url'],
                 'title': pr['title'],
                 'user': pr['user']['login'],
-                'updated_at': pr['updated_at'],
+                'created_at': pr['created_at'],
                 'mergeable': fix_boolean(pr['mergeable'])
             }
         url = "{base_url}/pulls/{number}".format(base_url=base_url,number=number)
@@ -165,8 +165,8 @@ class GitHubReportSource:
         pr = simplify(raw_pr)
     
         pr['status'] = self.get_last_status(raw_pr['statuses_url'])
-        pr['pr_age_days'] = self.github_days_elapsed(pr['updated_at'])
-        pr['github_days_ago'] = self.github_days_ago(pr['updated_at'])
+        pr['pr_age_days'] = self.github_days_elapsed(pr['created_at'])
+        pr['github_days_ago'] = self.github_days_ago(pr['created_at'])
 
         reviews = self.get_reviews(base_url, number)
         approved = [r['user'] for r in reviews if r['state'] == 'APPROVED']
@@ -259,7 +259,7 @@ class GitHubReportSource:
             'title',
             'url',
             'user',
-            'updated_at',
+            'created_at',
             'pr_age_days',
             'declined_concat',
             'declined_count',
